@@ -1,0 +1,20 @@
+.file-input__input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.file-input__label {
+  cursor: pointer;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  font-size: 18px;
+}
+
+.file-input__label svg {
+  height: 22px;
+}
