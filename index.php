@@ -28,13 +28,38 @@ $_SESSION['sname']=$num['studentName'];
 $uip=$_SERVER['REMOTE_ADDR'];
 $status=1;
 $log=mysqli_query($con,"insert into userlog(studentRegno,userip,status) values('".$_SESSION['login']."','$uip','$status')");
-header("location:http:index.php");
+header("location:index.php");
 }else{
 $_SESSION['errmsg']="Invalid Reg no or Password";
-header("location:http:index.php");
+header("location:index.php");
 echo '<script>alert('.$_SESSION["errmsg"].')</script>';
 }
 }
+
+
+
+
+//Code for Insertion
+if(isset($_POST['submit']))
+{
+$name=$_POST['name'];
+$email=$_POST['email'];
+$subject=$_POST['subject'];
+$msg=$_POST['msg'];
+$ret=mysqli_query($con,"insert into message(name,email,subject,msg) values('$name','$email','$subject','$msg')");
+if($ret)
+{
+    
+echo '<script>alert("Course Send Successfully !!")</script>';
+header("location:index.php");
+}else {
+echo '<script>alert("Error : Message not Send!!")</script>';
+echo '<script>window.location.href=index.php</script>';
+}
+}
+
+
+
 ?>
 
 
@@ -396,32 +421,25 @@ while($row=mysqli_fetch_array($sql))
                 </div>
                 <div class="col-lg-7">
                     <div class="owl-carousel testimonial-carousel">
+                        <?php
+$sql=mysqli_query($con,"select * from message");
+$cnt=1;
+while($row=mysqli_fetch_array($sql))
+{
+?>
                         <div class="bg-white p-5">
                             <i class="fa fa-3x fa-quote-left text-primary mb-4"></i>
-                            <p>Sed et elitr ipsum labore dolor diam, ipsum duo vero sed sit est est ipsum eos clita est
-                                ipsum. Est nonumy tempor at kasd. Sed at dolor duo ut dolor, et justo erat dolor magna
-                                sed stet amet elitr duo lorem</p>
+                            <p><?php echo htmlentities($row['msg']);?></p>
                             <div class="d-flex flex-shrink-0 align-items-center mt-4">
                                 <img class="img-fluid mr-4" src="img/testimonial-2.jpg" alt="">
                                 <div>
-                                    <h5>Student Name</h5>
-                                    <span>Web Design</span>
+                                    <h5><?php echo htmlentities($row['name']);?></h5>
+                                    <span><?php echo htmlentities($row['subject']);?></span>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white p-5">
-                            <i class="fa fa-3x fa-quote-left text-primary mb-4"></i>
-                            <p>Sed et elitr ipsum labore dolor diam, ipsum duo vero sed sit est est ipsum eos clita est
-                                ipsum. Est nonumy tempor at kasd. Sed at dolor duo ut dolor, et justo erat dolor magna
-                                sed stet amet elitr duo lorem</p>
-                            <div class="d-flex flex-shrink-0 align-items-center mt-4">
-                                <img class="img-fluid mr-4" src="img/testimonial-1.jpg" alt="">
-                                <div>
-                                    <h5>Student Name</h5>
-                                    <span>Web Design</span>
-                                </div>
-                            </div>
-                        </div>
+                        <?php }?>
+
                     </div>
                 </div>
             </div>
@@ -467,33 +485,36 @@ while($row=mysqli_fetch_array($sql))
                 </div>
                 <div class="col-lg-7">
                     <div class="section-title position-relative mb-4">
-                        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Need Help?</h6>
+                        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Give Your
+                            Oppinion</h6>
                         <h1 class="display-4">Send Us A Message</h1>
                     </div>
                     <div class="contact-form">
-                        <form>
+                        <form method="post">
                             <div class="row">
                                 <div class="col-6 form-group">
                                     <input type="text"
                                         class="form-control border-top-0 border-right-0 border-left-0 p-0"
-                                        placeholder="Your Name" required="required">
+                                        placeholder="Your Name" name="name" value="<?php echo $_SESSION['sname']; ?>"
+                                        required="required">
                                 </div>
                                 <div class="col-6 form-group">
                                     <input type="email"
                                         class="form-control border-top-0 border-right-0 border-left-0 p-0"
-                                        placeholder="Your Email" required="required">
+                                        placeholder="Your Email" name="email" required="required">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <input type="text" class="form-control border-top-0 border-right-0 border-left-0 p-0"
-                                    placeholder="Subject" required="required">
+                                    placeholder="Subject" name="subject" required="required">
                             </div>
                             <div class="form-group">
                                 <textarea class="form-control border-top-0 border-right-0 border-left-0 p-0" rows="5"
-                                    placeholder="Message" required="required"></textarea>
+                                    placeholder="Message" name="msg" required="required"></textarea>
                             </div>
                             <div>
-                                <button class="btn btn-primary py-3 px-5" type="submit">Send Message</button>
+                                <button class="btn btn-primary py-3 px-5" type="submit" name="submit">Send
+                                    Message</button>
                             </div>
                         </form>
                     </div>

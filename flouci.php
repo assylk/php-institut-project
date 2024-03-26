@@ -20,8 +20,8 @@ curl_setopt_array($curl, array(
     "app_secret": "94139f74-4c49-4a00-8b5a-b59d40143f6f",
     "accept_card": "true",
     "amount":' . $amount . ',
-    "success_link": "http://localhost/kes/index.php",
-    "fail_link": "http://localhost/kes/profile.php",
+    "success_link": "http://assylchouikh.rf.gd/index.php",
+    "fail_link": "http://assylchouikh.rf.gd/profile.php",
     "session_timeout_secs": 1200,
     "developer_tracking_id": "a813ff17-9c04-4260-a3f7-750fcaebf7d7"
 }',
