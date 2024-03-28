@@ -25,10 +25,21 @@ if($num>0)
 $_SESSION['login']=$_POST['regno'];
 $_SESSION['id']=$num['studentRegno'];
 $_SESSION['sname']=$num['studentName'];
+$pincode = rand(100000,999999);
+
 $uip=$_SERVER['REMOTE_ADDR'];
 $status=1;
 $log=mysqli_query($con,"insert into userlog(studentRegno,userip,status) values('".$_SESSION['login']."','$uip','$status')");
 header("location:index.php");
+echo "<script>
+    var style = document.createElement('style');
+    style.innerHTML = '.custom-alert { background-color: #f4f4f4; color: #333; padding: 20px; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }';
+    document.head.appendChild(style);
+    alertBox = document.createElement('div');
+    alertBox.className = 'custom-alert';
+    alertBox.innerHTML = 'Welcome Back';
+    document.body.appendChild(alertBox);
+</script>";
 }else{
 $_SESSION['errmsg']="Invalid Reg no or Password";
 header("location:index.php");
@@ -68,7 +79,7 @@ echo '<script>window.location.href=index.php</script>';
 
 <head>
     <meta charset="utf-8">
-    <title>Edukate - Online Education Website Template</title>
+    <title>ISMAIK BIBLIO - Home</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -107,7 +118,7 @@ html {
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Edukate</h1>
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>

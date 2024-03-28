@@ -51,7 +51,7 @@ $result = mysqli_query($con, $sql);
 
 <head>
     <meta charset="utf-8">
-    <title>Edukate - Online Education Website Template</title>
+    <title>ISMAIK BIBLIO - Courses</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -86,7 +86,7 @@ $result = mysqli_query($con, $sql);
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Edukate</h1>
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -165,7 +165,13 @@ $result = mysqli_query($con, $sql);
                 </div>
             </div>
             <div class="row">
-                <?php while ($row = mysqli_fetch_assoc($result)) {
+                <?php 
+if(mysqli_num_rows($result) == 0) {
+    // Display a paragraph if the courses table is null
+    echo "<p>No courses available at the moment.</p>";
+} else {
+    // Iterate through the results if there are rows in the table
+    while ($row = mysqli_fetch_assoc($result)) {
 ?>
                 <div class="col-lg-4 col-md-6 pb-4">
                     <a class="courses-list-item position-relative d-block overflow-hidden mb-2"
@@ -184,7 +190,10 @@ $result = mysqli_query($con, $sql);
                         </div>
                     </a>
                 </div>
-                <?php }?>
+                <?php 
+    }
+}
+?>
                 <div class="col-12">
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-lg justify-content-center mb-0">

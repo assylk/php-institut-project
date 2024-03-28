@@ -6,28 +6,8 @@ if(strlen($_SESSION['alogin'])==0)
 header('location:index.php');
 }
 else{
-date_default_timezone_set('Africa/Tunisia');// change according timezone
+date_default_timezone_set('Asia/Kolkata');// change according timezone
 $currentTime = date( 'd-m-Y h:i:s A', time () );
-
-
-if(isset($_POST['addstudent'])){
-    $studentName=$_POST['studentName'];
-    $studentEmail=$_POST['studentEmail'];
-    $studentRegno=$_POST['studentRegno'];
-    $password=md5('ismaik');
-
-    $pincode = rand(100000,999999);
-
-$ret=mysqli_query($con,"insert into students(StudentRegno,studentName,email,password,pincode) values('$studentRegno','$studentName','$studentEmail','$password','$pincode')");
-if($ret){
-    echo '<script>alert("Student added Successfully !!")</script>';
-}else{
-    echo '<script>alert("Student Not Added !!")</script>';
-
-}
-
-}
-
 
 
 if(isset($_POST['submit']))
@@ -50,7 +30,7 @@ echo '<script>window.location.href=change-password.php</script>';
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Manage Student</title>
+    <title>ISMAIK BIBLIO - Profile</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -110,7 +90,7 @@ function valid() {
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Edukate</h1>
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -119,11 +99,23 @@ function valid() {
                 <div class="navbar-nav mx-auto py-0">
                     <a href="index.php" class="nav-item nav-link active">Home</a>
                     <a href="courses.php" class="nav-item nav-link">Courses</a>
-                    <?php if($_SESSION['alogin']!=""){ ?>
 
                     <a href="add-course.php" class="nav-item nav-link">Add Course</a>
                     <a href="profile.php" class="nav-item nav-link">Profile</a>
-                    <?php }?>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Student Management</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="feature.html" class="dropdown-item">Add Student</a>
+                            <a href="manage-students.php" class="dropdown-item">See Students</a>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Courses Management</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="feature.html" class="dropdown-item">Add Course</a>
+                            <a href="manage-courses.php" class="dropdown-item">See Courses</a>
+                        </div>
+                    </div>
 
                 </div>
                 <?php if($_SESSION['alogin']==""){ ?>
@@ -140,11 +132,11 @@ function valid() {
     <!-- Header Start -->
     <div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
         <div class="container text-center py-5">
-            <h1 class="text-white display-1">Manage Students</h1>
+            <h1 class="text-white display-1">Profile</h1>
             <div class="d-inline-flex text-white mb-5">
                 <p class="m-0 text-uppercase"><a class="text-white" href="">Home</a></p>
                 <i class="fa fa-angle-double-right pt-1 px-3"></i>
-                <p class="m-0 text-uppercase">Manage Students</p>
+                <p class="m-0 text-uppercase">Profile</p>
             </div>
 
         </div>
@@ -155,95 +147,38 @@ function valid() {
     <!-- About Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
+            <font color="green" align="center">
+                <?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?></font>
 
             <div class="row">
-                <form method="post">
-                    <div class="row g-2 mb-5">
-                        <div class="col-md">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="floatingInputGrid"
-                                    placeholder="Enter student name" required name="studentName">
-                                <label for="floatingInputGrid">Student Name</label>
-                            </div>
-                        </div>
-                        <div class="col-md">
-                            <div class="form-floating">
-                                <input type="email" class="form-control" id="floatingInputGrid"
-                                    placeholder="name@example.com" name="studentEmail" required>
-                                <label for="floatingInputGrid">Email address</label>
-                            </div>
-                        </div>
 
-                        <div class="col-md">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="floatingInputGrid" name="studentRegno"
-                                    placeholder="Enter Student Regno" pattern="[0-9]+" required>
-                                <label for="floatingInputGrid">Student Reg no</label>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md">
-                            <div class="">
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary" name="addstudent"
-                                        style="width:180px;height:55px">Confirm
-                                        identity</button>
-                                </div>
-
-                            </div>
+                <form name="chngpwd" method="post" class="row g-3" onSubmit="return valid();">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input class="form-control " name="cpass" placeholder="Enter Current Password"
+                                id="floatingTextarea" id="exampleInputPassword1" required>
+                            <label for="floatingTextarea">Current Password</label>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input class="form-control" name="newpass" placeholder="Enter New Password"
+                                id="floatingTextarea" id="exampleInputPassword1" required>
+                            <label for="floatingTextarea">New Password</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input class="form-control" type="text" name="cnfpass" placeholder="Enter Confirm Password"
+                                id="floatingTextarea" id="exampleInputPassword1" required>
+                            <label for="floatingTextarea">Confirm New Password</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <input type="submit" name="submit" class="btn btn-primary w-100" value="Next">
+                    </div>
                 </form>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Reg No </th>
-                                <th>Student Name </th>
-                                <th> Pincode</th>
-                                <th>Reg Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-$sql=mysqli_query($con,"select * from students");
-$cnt=1;
-while($row=mysqli_fetch_array($sql))
-{
-?>
-
-
-                            <tr>
-                                <td><?php echo $cnt;?></td>
-                                <td><?php echo htmlentities($row['StudentRegno']);?></td>
-                                <td><?php echo htmlentities($row['studentName']);?></td>
-                                <td><?php echo htmlentities($row['pincode']);?></td>
-                                <td><?php echo htmlentities($row['creationdate']);?></td>
-                                <td>
-                                    <a href="edit-student.php?id=<?php echo $row['StudentRegno']?>">
-                                        <button class="btn btn-primary"><i class="fa fa-edit "></i>
-                                            Edit</button> </a>
-                                    <a href="manage-students.php?id=<?php echo $row['StudentRegno']?>&del=delete"
-                                        onClick="return confirm('Are you sure you want to delete?')">
-                                        <button class="btn btn-danger">Delete</button>
-                                    </a>
-                                    <a href="manage-students.php?id=<?php echo $row['StudentRegno']?>&pass=update"
-                                        onClick="return confirm('Are you sure you want to reset password?')">
-                                        <button type="submit" name="submit" id="submit" class="btn btn-info">Reset
-                                            Password</button>
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php 
-$cnt++;
-} ?>
-
-
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>

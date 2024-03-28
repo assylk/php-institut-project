@@ -3,16 +3,20 @@ session_start();
 error_reporting(0);
 include("includes/config.php");
 $id=intval($_GET['id']);
-echo "<script>'alert(".$id.")'</script>";
-
+$suser=$_SESSION['login'];
 
 $sql=mysqli_query($con,"select * from course where id='".$id."'");
 while($row=mysqli_fetch_array($sql))
 {
     $category=$row['category'];
-    $author=$row['author'];
+    $authorID=$row['author'];
 }
 
+$sql=mysqli_query($con,"select * from students where StudentRegno='".$authorID."'");
+while($row=mysqli_fetch_array($sql))
+{
+    $author=$row['studentName'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +24,7 @@ while($row=mysqli_fetch_array($sql))
 
 <head>
     <meta charset="utf-8">
-    <title>Edukate - Online Education Website Template</title>
+    <title>ISMAIK BIBLIO - Detail</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -54,7 +58,7 @@ while($row=mysqli_fetch_array($sql))
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Edukate</h1>
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -182,7 +186,7 @@ while($row=mysqli_fetch_array($sql))
                         <h3 class="text-white py-3 px-4 m-0">Course Features</h3>
                         <div class="d-flex justify-content-between border-bottom px-4">
                             <h6 class="text-white my-3">Instructor</h6>
-                            <h6 class="text-white my-3"><?php echo $row['author'] ?></h6>
+                            <h6 class="text-white my-3"><?php echo $author;?></h6>
                         </div>
                         <div class="d-flex justify-content-between border-bottom px-4">
                             <h6 class="text-white my-3">Rating</h6>
@@ -202,13 +206,14 @@ while($row=mysqli_fetch_array($sql))
                         </div>
                         <div class="d-flex justify-content-between px-4">
                             <h6 class="text-white my-3">Language</h6>
-                            <h6 class="text-white my-3">English</h6>
+                            <h6 class="text-white my-3"></h6>
                         </div>
                         <h5 class="text-white py-3 px-4 m-0">Course Price: <?php echo htmlentities($row['price']);?> DT
                         </h5>
                         <div class="py-3 px-4">
                             <a class="btn btn-block btn-secondary py-3 px-5"
-                                href="flouci.php?amount=<?php echo htmlentities($row['price']);?>">Enroll Now</a>
+                                href="flousi.php?amount=<?php echo htmlentities($row['price']);?>&&coursepin=<?php echo htmlentities($row['coursePin']);?>&&studentID=<?php echo htmlentities($suser);?>">Enroll
+                                Now</a>
                         </div>
                     </div>
                     <?php 
@@ -236,6 +241,7 @@ while($row=mysqli_fetch_array($sql))
 
                     <div class="mb-5">
                         <h2 class="mb-4">Recent Courses</h2>
+
                         <?php 
                                     $sql=mysqli_query($con,"select * from course where author='".$author."' LIMIT 4");
                                     $cnt=1;

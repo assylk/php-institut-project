@@ -52,19 +52,49 @@ echo '<script>window.location.href=my-profile.php</script>';
 
 if(isset($_POST['submitpublic']))
 {
+    $t="0";
+    $target_dir = "studentphoto/";
+    $timestamp = time(); // Current timestamp
+    $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
+    // Check file size (limit to 5MB)
+    $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
+    if ($_FILES["photo"]["size"] > $max_file_size) {
+        $_SESSION['errmsg']="Sorry, your file is too large (max 5MB).";
+    }
+    // Check file type
+    $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
+    $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    if (!in_array($file_extension, $allowed_types)) {
+        $_SESSION['errmsg']="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+    }
+    // Check if file already exists
+    if (file_exists($target_file)) {
+        $_SESSION['errmsg']="Sorry, file already exists.";
+    }
+    // Upload file
+    if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
+        $t="1";
+                $_SESSION['errmsg']="The file ". basename($target_file). " has been uploaded.";
+
+
+        // Save file path to database
+        $image_path = $target_file;
+        $ret=mysqli_query($con,"update students set studentName='$studentname',studentPhoto='$image_path',bio='$bio'  where StudentRegno='".$_SESSION['login']."'");
+            if($ret)
+            {
+            echo '<script>alert("Student Record updated Successfully !!")</script>';
+            echo '<script>window.location.href=my-profile.php</script>';    
+            }else{
+            echo '<script>alert("Something went wrong . Please try again.!")</script>';
+            echo '<script>window.location.href=my-profile.php</script>';    
+            }
+    } else {
+        echo "Sorry, there was an error uploading your file.";
+    }
 $studentname=$_POST['studentname'];
-$photo=$_FILES["photo"]["name"];
 $bio=$_POST['bio'];
-move_uploaded_file($_FILES["photo"]["tmp_name"],"studentphoto/".$_FILES["photo"]["name"]);
-$ret=mysqli_query($con,"update students set studentName='$studentname',studentPhoto='$photo',bio='$bio'  where StudentRegno='".$_SESSION['login']."'");
-if($ret)
-{
-echo '<script>alert("Student Record updated Successfully !!")</script>';
-echo '<script>window.location.href=my-profile.php</script>';    
-}else{
-echo '<script>alert("Something went wrong . Please try again.!")</script>';
-echo '<script>window.location.href=my-profile.php</script>';    
-}
+
+
 }
 
 
@@ -75,7 +105,7 @@ echo '<script>window.location.href=my-profile.php</script>';
 
 <head>
     <meta charset="utf-8">
-    <title>Edukate - Online Education Website Template</title>
+    <title>ISMAIK BIBLIO - Profile</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -131,7 +161,7 @@ function valid() {
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Edukate</h1>
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -177,6 +207,8 @@ function valid() {
     <div class="container-fluid w-100">
         <div class="container">
             <div class="row">
+                <span
+                    style="color:red;"><?php echo htmlentities($_SESSION['errmsg']); ?><?php echo htmlentities($_SESSION['errmsg']="");?></span>
                 <div class="container p-0">
                     <h1 class="h3">Settings</h1>
                     <div class="row">
@@ -194,26 +226,7 @@ function valid() {
                                         href="#password" role="tab">
                                         Password
                                     </a>
-                                    <a class="list-group-item list-group-item-action" data-toggle="list" href="#"
-                                        role="tab">
-                                        Privacy and safety
-                                    </a>
-                                    <a class="list-group-item list-group-item-action" data-toggle="list" href="#"
-                                        role="tab">
-                                        Email notifications
-                                    </a>
-                                    <a class="list-group-item list-group-item-action" data-toggle="list" href="#"
-                                        role="tab">
-                                        Web notifications
-                                    </a>
-                                    <a class="list-group-item list-group-item-action" data-toggle="list" href="#"
-                                        role="tab">
-                                        Widgets
-                                    </a>
-                                    <a class="list-group-item list-group-item-action" data-toggle="list" href="#"
-                                        role="tab">
-                                        Your data
-                                    </a>
+
                                     <a class="list-group-item list-group-item-action" data-toggle="list" href="#"
                                         role="tab">
                                         Delete account
@@ -253,7 +266,8 @@ $cnt=1;
 while($row=mysqli_fetch_array($sql))
 { ?>
                                         <div class="card-body">
-                                            <form name="dept" method="post" enctype="multipart/form-data">
+                                            <form name="dept" method="post" id="imageForm"
+                                                enctype="multipart/form-data">
                                                 <div class="row">
                                                     <div class="col-md-8">
                                                         <div class="form-group">
@@ -277,11 +291,14 @@ while($row=mysqli_fetch_array($sql))
                                                                 class="rounded-circle img-responsive mt-2" width="128"
                                                                 height="128">
                                                             <?php } else {?>
-                                                            <img src="studentphoto/<?php echo htmlentities($row['studentPhoto']);?>"
-                                                                width="200" height="200">
+                                                            <img src="<?php echo htmlentities($row['studentPhoto']);?>"
+                                                                alt="<?php echo htmlentities($row['studentPhoto']);?>"
+                                                                width="200" height="200"
+                                                                style="border-radius: 50%;object-fit:cover">
                                                             <?php } ?>
                                                             <div class="mt-2">
-                                                                <input type="file" id="photo" name="photo"
+                                                                <input type="file" id="imageInput" id="photo"
+                                                                    name="photo"
                                                                     value="<?php echo htmlentities($row['studentPhoto']);?>">
                                                             </div>
                                                             <small>For best results, use an image at least 128px by
@@ -444,8 +461,12 @@ while($row=mysqli_fetch_array($sql))
     <a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top"><i
             class="fa fa-angle-double-up"></i></a>
 
-
+    <!-- Include Cropper.js and its dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
     <!-- JavaScript Libraries -->
+
+
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
     <script src="lib/easing/easing.min.js"></script>
@@ -455,6 +476,49 @@ while($row=mysqli_fetch_array($sql))
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+
+
+    <!-- JavaScript code to initialize Cropper.js -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var image = document.getElementById('imageInput');
+        var cropper;
+
+        image.addEventListener('change', function() {
+            var files = this.files;
+            var reader;
+
+            if (files && files.length) {
+                reader = new FileReader();
+                reader.onload = function(event) {
+                    var dataUrl = event.target.result;
+
+                    if (cropper) {
+                        cropper.replace(dataUrl);
+                    } else {
+                        var imageElement = document.createElement('img');
+                        imageElement.src = dataUrl;
+                        imageElement.id = 'cropperImage';
+                        document.body.appendChild(imageElement);
+                        cropper = new Cropper(imageElement, {
+                            aspectRatio: 1,
+                            viewMode: 2,
+                            crop: function(event) {
+                                // Output cropped area data
+                                console.log(event.detail.x);
+                                console.log(event.detail.y);
+                                console.log(event.detail.width);
+                                console.log(event.detail.height);
+                            }
+                        });
+                    }
+                };
+
+                reader.readAsDataURL(files[0]);
+            }
+        });
+    });
+    </script>
 </body>
 
 </html>

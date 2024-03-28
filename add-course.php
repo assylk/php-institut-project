@@ -5,17 +5,45 @@ if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
-else{
-    $username=$_SESSION['sname'];
 
+
+else{
+    $authorID=$_SESSION['login'];
+    $sql=mysqli_query($con,"select * from course where id='".$coursecode."'");
+
+    
+function generateUniqueCourseID() {
+    // Prefix for the ID
+    $prefix = "COURSE";
+
+    // Generate a random string (you can customize the length as needed)
+    $random_string = substr(str_shuffle(str_repeat("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 10)), 0, 10);
+
+    // Generate a timestamp
+    $timestamp = time();
+
+    // Combine all elements to create the unique ID
+    $unique_id = $prefix . "_" . $random_string . "_" . $timestamp;
+
+    // Add a checksum to the ID
+    $checksum = crc32($unique_id);
+    $unique_id .= "_" . $checksum;
+
+    return $unique_id;
+}
+
+
+    
 //Code for Insertion
 if(isset($_POST['submit']))
 {
+    $course_id = generateUniqueCourseID();
+
 $coursecode=$_POST['coursecode'];
 $coursename=$_POST['coursename'];
 $coursecategory=$_POST['coursecategory'];
 $courseprice=$_POST['courseprice'];
-$ret=mysqli_query($con,"insert into course(courseCode,courseName,author,category,price) values('$coursecode','$coursename','$username','$coursecategory','$courseprice')");
+$ret=mysqli_query($con,"insert into course(coursePin,courseCode,courseName,author,category,price) values('$course_id','$coursecode','$coursename','$authorID','$coursecategory','$courseprice')");
 if($ret)
 {
      $sql=mysqli_query($con,"select * from course where id='".$coursecode."'");
@@ -24,8 +52,10 @@ if($ret)
     { 
     $id=$row['id'];
     }
-echo '<script>alert("Course Created Successfully !!")</script>';
-header("location:detail.php?id=".$id);
+
+
+echo '<script>alert("Course Added By '.$_SESSION['sname'].' ")</script>';
+
 }else {
 echo '<script>alert("Error : Course not created!!")</script>';
 echo '<script>window.location.href=course.php</script>';
@@ -48,11 +78,13 @@ echo '<script>window.location.href=course.php</script>';
 
 <head>
     <meta charset="utf-8">
-    <title>Edukate - Online Education Website Template</title>
+    <title>ISMAIK BIBLIO - Add Course</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
-
+    <!-- Include the library -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9">
+    </script>
     <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
 
@@ -61,7 +93,11 @@ echo '<script>window.location.href=course.php</script>';
     <link
         href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -78,7 +114,9 @@ echo '<script>window.location.href=course.php</script>';
 
 <body>
     <!-- Topbar Start -->
+
     <div class="container-fluid bg-dark">
+
         <div class="row py-2 px-lg-5">
             <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
                 <div class="d-inline-flex align-items-center text-white">
@@ -113,9 +151,11 @@ echo '<script>window.location.href=course.php</script>';
 
     <!-- Navbar Start -->
     <div class="container-fluid p-0">
+
+
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Edukate</h1>
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -144,6 +184,7 @@ echo '<script>window.location.href=course.php</script>';
 
     <!-- Header Start -->
     <div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
+
         <div class="container text-center py-5">
             <h1 class="text-white display-1">Add Course</h1>
             <div class="d-inline-flex text-white mb-5">
@@ -230,6 +271,12 @@ echo '<script>window.location.href=course.php</script>';
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Template Javascript -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
+    </script>
     <script src="js/main.js"></script>
 </body>
 

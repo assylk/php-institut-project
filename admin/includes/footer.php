@@ -69,7 +69,7 @@
                 </p>
             </div>
             <div class="col-md-6 text-center text-md-right">
-                <p class="m-0">Coocked with Love By <a href="https://github.com/assylk">Assyl Chouikh</a>
+                <p class="m-0">Cooked with Love By <a href="https://github.com/assylk">Assyl Chouikh</a>
                 </p>
             </div>
         </div>
