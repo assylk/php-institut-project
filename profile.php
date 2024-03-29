@@ -52,7 +52,7 @@ echo '<script>window.location.href=my-profile.php</script>';
 
 if(isset($_POST['submitpublic']))
 {
-    $t="0";
+    $t="red";
     $target_dir = "studentphoto/";
     $timestamp = time(); // Current timestamp
     $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
@@ -73,7 +73,7 @@ if(isset($_POST['submitpublic']))
     }
     // Upload file
     if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
-        $t="1";
+        $text_color="green";
                 $_SESSION['errmsg']="The file ". basename($target_file). " has been uploaded.";
 
 
@@ -336,7 +336,7 @@ while($row=mysqli_fetch_array($sql))
                                             </div>
                                             <h5 class="card-title mb-0">Private info</h5>
                                         </div>
-                                        <font color="green" align="center">
+                                        <font color="<?php echo $text_color ?>" align="center">
                                             <?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?>
                                         </font>
                                         <?php $sql=mysqli_query($con,"select * from students where StudentRegno='".$_SESSION['login']."'");
