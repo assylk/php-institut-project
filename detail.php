@@ -10,12 +10,20 @@ while($row=mysqli_fetch_array($sql))
 {
     $category=$row['category'];
     $authorID=$row['author'];
+    $courseName=$row['courseName'];
+    $price=$row['price'];
+    $rate=$row['rate'];
+    $thumbnail=$row['thumbnail'];
+    $courseUnit=$row['courseUnit'];
+    $coursePin=$row['coursePin'];
+    $rate=$row['rate'];
 }
 
 $sql=mysqli_query($con,"select * from students where StudentRegno='".$authorID."'");
 while($row=mysqli_fetch_array($sql))
 {
     $author=$row['studentName'];
+
 }
 ?>
 
@@ -110,26 +118,22 @@ while($row=mysqli_fetch_array($sql))
         <div class="container py-5">
             <div class="row">
                 <div class="col-lg-8">
-                    <?php 
-                                    $sql=mysqli_query($con,"select * from course where id='".$id."'");
-                                    $cnt=1;
-                while($row=mysqli_fetch_array($sql))
-                { ?>
+
                     <div class="mb-5">
                         <div class="section-title position-relative mb-5">
                             <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Course
                                 Detail</h6>
-                            <h1 class="display-4"><?php echo $row['courseName'] ?></h1>
+                            <h1 class="display-4"><?php echo $courseName ?></h1>
                         </div>
-                        <?php if($row['thumbnail']==Null && $row['author']==$_SESSION['sname']){ ?>
+                        <?php if($thumbnail==Null && $author==$_SESSION['sname']){ ?>
                         <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Select File"
                             title="Select File" src="img/addimage.png" style="cursor: pointer" />
                         <span id="spnFilePath"></span>
                         <input type="file" id="FileUpload1" style="display: none" />
-                        <?php }else if($row['thumbnail']==Null && $row['author']!=$_SESSION['sname']){?>
+                        <?php }else if($thumbnail==Null && $author!=$_SESSION['sname']){?>
                         <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Thumbnail"
                             src="img/notavailable.png" />
-                        <?php }else if($row['thumbnail']!=Null){?>
+                        <?php }else if($thumbnail!=Null){?>
                         <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Thumbnail"
                             src="img/header.jpg" />
                         <?php }?>
@@ -145,23 +149,21 @@ while($row=mysqli_fetch_array($sql))
                             gubergren dolores et, consetetur justo invidunt at et aliquyam ut et vero clita. Diam sea
                             sea no sed dolores diam nonumy, gubergren sit stet no diam kasd vero.</p>
                     </div>
-                    <?php }?>
                     <h2 class="mb-3">Related Courses</h2>
                     <div class="owl-carousel related-carousel position-relative" style="padding: 0 30px;">
                         <?php 
-                                    $sql=mysqli_query($con,"select * from course where category='".$category."'");
-                                    $cnt=1;
+                                    $sql=mysqli_query($con,"select c.id as courseID,c.courseUnit as courseUnit,c.rate as rate,c.courseName AS courseName,c.author,s.studentName AS author_name from course c  INNER JOIN students s ON c.author = s.StudentRegno where c.category='".$category."'");
                 while($row=mysqli_fetch_array($sql))
                 { ?>
                         <a class="courses-list-item position-relative d-block overflow-hidden mb-2"
-                            href="detail.php?id=<?php echo $row['id'];?>">
+                            href="detail.php?id=<?php echo $row['courseID'];?>">
                             <img class="img-fluid" src="img/courses-1.jpg" alt="">
                             <div class="courses-text">
-                                <h4 class="text-center text-white px-3"><?php echo $row['courseName'];?></h4>
+                                <h4 class="text-center text-white px-3"><?php echo $row['courseName']?></h4>
                                 <div class="border-top w-100 mt-3">
                                     <div class="d-flex justify-content-between p-4">
                                         <span class="text-white"><i
-                                                class="fa fa-user mr-2"></i><?php echo $row['author'];?></span>
+                                                class="fa fa-user mr-2"></i><?php echo $row['author_name'];?></span>
                                         <span class="text-white"><i
                                                 class="fa fa-star mr-2"></i><?php echo $row['rate'];?>
                                             <small>(<?php echo $row['courseUnit'];?>)</small></span>
@@ -174,14 +176,9 @@ while($row=mysqli_fetch_array($sql))
                 </div>
 
                 <div class="col-lg-4 mt-5 mt-lg-0">
-                    <?php 
-                                    $sql=mysqli_query($con,"select * from course where id='".$id."'");
-                                    $cnt=1;
-                while($row=mysqli_fetch_array($sql))
-                { 
 
 
-                    ?>
+
                     <div class="bg-primary mb-5 py-3">
                         <h3 class="text-white py-3 px-4 m-0">Course Features</h3>
                         <div class="d-flex justify-content-between border-bottom px-4">
@@ -190,11 +187,11 @@ while($row=mysqli_fetch_array($sql))
                         </div>
                         <div class="d-flex justify-content-between border-bottom px-4">
                             <h6 class="text-white my-3">Rating</h6>
-                            <h6 class="text-white my-3">4.5 <small>(<?php echo $row['courseUnit'] ?>)</small></h6>
+                            <h6 class="text-white my-3">4.5 <small>(<?php echo $rate?>)</small></h6>
                         </div>
                         <div class="d-flex justify-content-between border-bottom px-4">
                             <h6 class="text-white my-3">Lectures</h6>
-                            <h6 class="text-white my-3"> <?php echo $row['courseUnit'] ?></h6>
+                            <h6 class="text-white my-3"> <?php echo $courseUnit?></h6>
                         </div>
                         <div class="d-flex justify-content-between border-bottom px-4">
                             <h6 class="text-white my-3">Duration</h6>
@@ -208,17 +205,15 @@ while($row=mysqli_fetch_array($sql))
                             <h6 class="text-white my-3">Language</h6>
                             <h6 class="text-white my-3"></h6>
                         </div>
-                        <h5 class="text-white py-3 px-4 m-0">Course Price: <?php echo htmlentities($row['price']);?> DT
+                        <h5 class="text-white py-3 px-4 m-0">Course Price: <?php echo $price;?> DT
                         </h5>
                         <div class="py-3 px-4">
                             <a class="btn btn-block btn-secondary py-3 px-5"
-                                href="flousi.php?amount=<?php echo htmlentities($row['price']);?>&&coursepin=<?php echo htmlentities($row['coursePin']);?>&&studentID=<?php echo htmlentities($suser);?>">Enroll
+                                href="flousi.php?amount=<?php echo $price;?>&&coursepin=<?php echo $coursePin;?>&&studentID=<?php echo $suser;?>">Enroll
                                 Now</a>
                         </div>
                     </div>
-                    <?php 
-                    $cnt++;
-                }?>
+
 
 
                     <div class="mb-5">
@@ -243,7 +238,7 @@ while($row=mysqli_fetch_array($sql))
                         <h2 class="mb-4">Recent Courses</h2>
 
                         <?php 
-                                    $sql=mysqli_query($con,"select * from course where author='".$author."' LIMIT 4");
+                                    $sql=mysqli_query($con,"select * from course where author='".$authorID."' and id!='$id' LIMIT 4");
                                     $cnt=1;
                 while($row=mysqli_fetch_array($sql))
                 { ?>

@@ -34,7 +34,7 @@ if (isset($_GET['page']) && is_numeric($_GET['page'])) {
 $start = ($current_page - 1) * $records_per_page;
 
 // Fetch records for the current page
-$sql = "SELECT * FROM course";
+$sql = "SELECT course.*, students.studentName AS author_name FROM course INNER JOIN students ON course.author = students.StudentRegno";
 if (empty($cat)) {
     $sql .= " WHERE courseName LIKE '%$search%' OR author LIKE '%$search%' OR courseCode LIKE '%$search%'";
 }
@@ -182,7 +182,7 @@ if(mysqli_num_rows($result) == 0) {
                             <div class="border-top w-100 mt-3">
                                 <div class="d-flex justify-content-between p-4">
                                     <span class="text-white"><i
-                                            class="fa fa-user mr-2"></i><?php echo $row['author'];?></span>
+                                            class="fa fa-user mr-2"></i><?php echo $row['author_name'];?></span>
                                     <span class="text-white"><i class="fa fa-star mr-2"></i><?php echo $row['rate'];?>
                                         <small>(<?php echo $row['courseUnit'];?>)</small></span>
                                 </div>

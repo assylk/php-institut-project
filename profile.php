@@ -2,6 +2,30 @@
 session_start();
 include('includes/config.php');
 error_reporting(0);
+
+
+                                        
+
+
+
+
+
+// Check if a message is set in the session
+if(isset($_SESSION['message'])) {
+    echo '<script>alert("'.$_SESSION['message'].'")</script>';
+    // Unset the session variable to clear the message
+    unset($_SESSION['message']);
+}
+
+
+
+
+
+
+
+
+
+
 if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
@@ -9,6 +33,83 @@ header('location:index.php');
 else{
 date_default_timezone_set('Africa/Tunisia');// change according timezone
 $currentTime = date( 'd-m-Y h:i:s A', time () );
+
+
+ $sql=mysqli_query($con,"select * from students where StudentRegno='".$_SESSION['login']."'");
+while($row=mysqli_fetch_array($sql)){
+    $studentName=$row['studentName'];
+    $studentPhoto=$row['studentPhoto'];
+    $email=$row['email'];
+    $city=$row['city'];
+    $state=$row['state'];
+    $zip=$row['zip'];
+    $pincode=$row['pincode'];
+    $cgpa=$row['cgpa'];    
+}
+
+
+
+
+
+
+
+if(isset($_POST['submitpublic'])) {
+    $target_dir = "studentphoto/";
+
+    // Check if a file is selected
+    if($_FILES["photo"]["error"] == UPLOAD_ERR_OK) {
+        $timestamp = time(); // Current timestamp
+        $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
+
+        // Check file size (limit to 5MB)
+        $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
+        if ($_FILES["photo"]["size"] > $max_file_size) {
+            $_SESSION['errmsg']="Sorry, your file is too large (max 5MB).";
+            
+        }
+
+        // Check file type
+        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
+        $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        if (!in_array($file_extension, $allowed_types)) {
+            $_SESSION['errmsg']="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            
+        }
+
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            $_SESSION['errmsg']="Sorry, file already exists.";
+            
+        }
+
+        // Upload file
+        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
+            // Save file path to database
+            $image_path = $target_file;
+            $ret = mysqli_query($con,"UPDATE students SET studentPhoto='$image_path' WHERE StudentRegno='".$_SESSION['login']."'");
+            if($ret) {
+                $_SESSION['errmsg']="Student Image updated Successfully !!";
+            } else {
+                $_SESSION['errmsg']="Something went wrong. Please try again!";
+            }
+        } else {
+            $_SESSION['errmsg']="Sorry, there was an error uploading your file.";
+        }
+    } else {
+        $_SESSION['errmsg']="No image selected.";
+    }
+
+ header("location:profile.php");
+ exit();
+}
+
+
+
+
+
+
+
+
 
 //Code for Change Password
 if(isset($_POST['changepass']))
@@ -22,80 +123,16 @@ if($num>0)
 {
  $con=mysqli_query($con,"update students set password='$newpass', updationDate='$currentTime' where studentRegno='$regno'");
 echo '<script>alert("Password Changed Successfully !!")</script>';
-echo '<script>window.location.href=change-password.php</script>';
 }else{
 echo '<script>alert("Current Password not match !!")</script>';
-echo '<script>window.location.href=change-password.php</script>';
 }
 }
 
 
-if(isset($_POST['submitprivate']))
-{
-$studentname=$_POST['studentname'];
-$cgpa=$_POST['cgpa'];
-$email=$_POST['email'];
-$city=$_POST['city'];
-$state=$_POST['state'];
-$zip=$_POST['zip'];
-$ret=mysqli_query($con,"update students set studentName='$studentname',email='$email',cgpa='$cgpa',city='$city',state='$state',zip='$zip'  where StudentRegno='".$_SESSION['login']."'");
-if($ret)
-{
-echo '<script>alert("Student Record updated Successfully !!")</script>';
-echo '<script>window.location.href=my-profile.php</script>';    
-}else{
-echo '<script>alert("Something went wrong . Please try again.!")</script>';
-echo '<script>window.location.href=my-profile.php</script>';    
-}
-}
 
 
-if(isset($_POST['submitpublic']))
-{
-    $t="red";
-    $target_dir = "studentphoto/";
-    $timestamp = time(); // Current timestamp
-    $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
-    // Check file size (limit to 5MB)
-    $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
-    if ($_FILES["photo"]["size"] > $max_file_size) {
-        $_SESSION['errmsg']="Sorry, your file is too large (max 5MB).";
-    }
-    // Check file type
-    $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
-    $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-    if (!in_array($file_extension, $allowed_types)) {
-        $_SESSION['errmsg']="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-    }
-    // Check if file already exists
-    if (file_exists($target_file)) {
-        $_SESSION['errmsg']="Sorry, file already exists.";
-    }
-    // Upload file
-    if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
-        $text_color="green";
-                $_SESSION['errmsg']="The file ". basename($target_file). " has been uploaded.";
 
 
-        // Save file path to database
-        $image_path = $target_file;
-        $ret=mysqli_query($con,"update students set studentName='$studentname',studentPhoto='$image_path',bio='$bio'  where StudentRegno='".$_SESSION['login']."'");
-            if($ret)
-            {
-            echo '<script>alert("Student Record updated Successfully !!")</script>';
-            echo '<script>window.location.href=my-profile.php</script>';    
-            }else{
-            echo '<script>alert("Something went wrong . Please try again.!")</script>';
-            echo '<script>window.location.href=my-profile.php</script>';    
-            }
-    } else {
-        echo "Sorry, there was an error uploading your file.";
-    }
-$studentname=$_POST['studentname'];
-$bio=$_POST['bio'];
-
-
-}
 
 
 
@@ -261,45 +298,28 @@ function valid() {
                                             </div>
                                             <h5 class="card-title mb-0">Public info</h5>
                                         </div>
-                                        <?php $sql=mysqli_query($con,"select * from students where StudentRegno='".$_SESSION['login']."'");
-$cnt=1;
-while($row=mysqli_fetch_array($sql))
-{ ?>
+
                                         <div class="card-body">
                                             <form name="dept" method="post" id="imageForm"
                                                 enctype="multipart/form-data">
                                                 <div class="row">
-                                                    <div class="col-md-8">
-                                                        <div class="form-group">
-                                                            <label for="inputUsername">Username</label>
-                                                            <input type="text" class="form-control" id="inputUsername"
-                                                                placeholder="Username" name="studentname"
-                                                                value="<?php echo htmlentities($row['studentName']);?>">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="inputUsername">Biography</label>
-                                                            <textarea rows="2" class="form-control" id="inputBio"
-                                                                name="bio"
-                                                                placeholder="Tell something about yourself"><?php echo htmlentities($row['bio']);?></textarea>
-                                                        </div>
-                                                    </div>
+
                                                     <div class="col-md-4">
                                                         <div class="text-center">
-                                                            <?php if($row['studentPhoto']==""){ ?>
+                                                            <?php if($studentPhoto==""){ ?>
                                                             <img alt="Andrew Jones"
                                                                 src="https://bootdey.com/img/Content/avatar/avatar1.png"
                                                                 class="rounded-circle img-responsive mt-2" width="128"
                                                                 height="128">
                                                             <?php } else {?>
-                                                            <img src="<?php echo htmlentities($row['studentPhoto']);?>"
-                                                                alt="<?php echo htmlentities($row['studentPhoto']);?>"
-                                                                width="200" height="200"
+                                                            <img src="<?php echo $studentPhoto?>"
+                                                                alt="<?php echo $studentPhoto?>" width="200"
+                                                                height="200"
                                                                 style="border-radius: 50%;object-fit:cover">
                                                             <?php } ?>
                                                             <div class="mt-2">
                                                                 <input type="file" id="imageInput" id="photo"
-                                                                    name="photo"
-                                                                    value="<?php echo htmlentities($row['studentPhoto']);?>">
+                                                                    name="photo" value="<?php echo $studentPhoto?>">
                                                             </div>
                                                             <small>For best results, use an image at least 128px by
                                                                 128px in .jpg format</small>
@@ -310,7 +330,6 @@ while($row=mysqli_fetch_array($sql))
                                                     changes</button>
                                             </form>
                                         </div>
-                                        <?php }?>
                                     </div>
                                     <div class="card">
                                         <div class="card-header">
@@ -339,58 +358,53 @@ while($row=mysqli_fetch_array($sql))
                                         <font color="<?php echo $text_color ?>" align="center">
                                             <?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?>
                                         </font>
-                                        <?php $sql=mysqli_query($con,"select * from students where StudentRegno='".$_SESSION['login']."'");
-                                        $cnt=1;
-                                        while($row=mysqli_fetch_array($sql))
-                                        { ?>
+
                                         <div class="card-body">
-                                            <form name="dept" method="post" enctype="multipart/form-data">
+                                            <form name="dept" method="post" action="sys/profile-sys.php"
+                                                enctype="multipart/form-data">
                                                 <div class="form-row">
                                                     <div class="form-group col-md-6">
                                                         <label for="inputFirstName">Student Name</label>
                                                         <input type="text" class="form-control" id="inputFirstName"
                                                             placeholder="First name" id="studentname" name="studentname"
-                                                            value="<?php echo htmlentities($row['studentName']);?>">
+                                                            value="<?php echo $studentName;?>">
                                                     </div>
                                                     <div class="form-group col-md-6">
                                                         <label for="inputLastName">Student Reg No</label>
                                                         <input type="text" class="form-control" disabled
                                                             id="inputLastName" placeholder="Reg No" id="studentregno"
                                                             name="studentregno"
-                                                            value="<?php echo htmlentities($row['StudentRegno']);?>">
+                                                            value="<?php echo $_SESSION['login'];?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="inputEmail4">Email</label>
                                                     <input type="email" class="form-control" id="inputEmail4"
-                                                        placeholder="Email" name="email"
-                                                        value="<?php echo htmlentities($row['email']);?>">
+                                                        placeholder="Email" name="email" value="<?php echo $email;?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="inputAddress">Pincode</label>
                                                     <input type="text" class="form-control" id="inputAddress"
                                                         id="Pincode" name="Pincode" placeholder="Pincode" readonly
-                                                        value="<?php echo htmlentities($row['pincode']);?>">
+                                                        value="<?php echo $pincode;?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="inputAddress2">CGPA </label>
                                                     <input type="text" class="form-control" id="cgpa" name="cgpa"
                                                         id="inputAddress2" placeholder="CGPA"
-                                                        value="<?php echo htmlentities($row['cgpa']);?>">
+                                                        value="<?php echo $cgpa;?>">
                                                 </div>
                                                 <div class="form-row">
                                                     <div class="form-group col-md-6">
                                                         <label for="inputCity">City</label>
-                                                        <input type="text" name="city"
-                                                            value="<?php echo htmlentities($row['city']);?>"
+                                                        <input type="text" name="city" value="<?php echo $city;?>"
                                                             class="form-control" id="inputCity">
                                                     </div>
                                                     <div class="form-group col-md-4">
                                                         <label for="inputState">State</label>
                                                         <select id="inputState" name="state" class="form-control">
-                                                            <option
-                                                                selected="<?php echo htmlentities($row['state']);?>">
-                                                                <?php echo htmlentities($row['state']);?></option>
+                                                            <option selected="<?php echo $state;?>">
+                                                                <?php echo $state;?></option>
                                                             <option value="Sousse">Sousse</option>
                                                             <option value="Monastir">Monastir</option>
                                                             <option value="Mehdia">Mehdia</option>
@@ -399,8 +413,7 @@ while($row=mysqli_fetch_array($sql))
                                                     </div>
                                                     <div class="form-group col-md-2">
                                                         <label for="inputZip">Zip</label>
-                                                        <input type="text"
-                                                            value="<?php echo htmlentities($row['zip']);?>" name="zip"
+                                                        <input type="text" value="<?php echo $zip;?>" name="zip"
                                                             class="form-control" id="inputZip">
                                                     </div>
                                                 </div>
@@ -408,7 +421,6 @@ while($row=mysqli_fetch_array($sql))
                                                     changes</button>
                                             </form>
                                         </div>
-                                        <?php }?>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="password" role="tabpanel">
