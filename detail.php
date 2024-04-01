@@ -17,6 +17,9 @@ while($row=mysqli_fetch_array($sql))
     $courseUnit=$row['courseUnit'];
     $coursePin=$row['coursePin'];
     $rate=$row['rate'];
+    $language=$row['language'];
+    $description=$row['description'];
+    $skillvl=$row['skillvl'];
 }
 
 $sql=mysqli_query($con,"select * from students where StudentRegno='".$authorID."'");
@@ -25,6 +28,60 @@ while($row=mysqli_fetch_array($sql))
     $author=$row['studentName'];
 
 }
+
+
+if(isset($_POST['submitpublic'])) {
+    $target_dir = "thumbnailimg/";
+
+    // Check if a file is selected
+    if($_FILES["photo"]["error"] == UPLOAD_ERR_OK) {
+        $timestamp = time(); // Current timestamp
+        $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
+
+        // Check file size (limit to 5MB)
+        $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
+        if ($_FILES["photo"]["size"] > $max_file_size) {
+            $_SESSION['errmsg']="Sorry, your file is too large (max 5MB).";
+            
+        }
+
+        // Check file type
+        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
+        $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        if (!in_array($file_extension, $allowed_types)) {
+            $_SESSION['errmsg']="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            
+        }
+
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            $_SESSION['errmsg']="Sorry, file already exists.";
+            
+        }
+
+        // Upload file
+        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
+            // Save file path to database
+            $image_path = $target_file;
+            $ret = mysqli_query($con,"UPDATE course SET thumbnail='$image_path' WHERE id='".$id."'");
+            if($ret) {
+                $_SESSION['errmsg']="Thumbnail Image updated Successfully !!";
+            } else {
+                $_SESSION['errmsg']="Something went wrong. Please try again!";
+            }
+        } else {
+            $_SESSION['errmsg']="Sorry, there was an error uploading your file.";
+        }
+    } else {
+        $_SESSION['errmsg']="No image selected.";
+    }
+
+ header("location:detail.php?id=$id");
+ exit();
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +96,18 @@ while($row=mysqli_fetch_array($sql))
 
     <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    </script>
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link
@@ -55,7 +123,20 @@ while($row=mysqli_fetch_array($sql))
     <!-- Customized Bootstrap Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
 </head>
+<style>
+.rating {
+    font-size: 30px;
+}
 
+.star {
+    cursor: pointer;
+}
+
+.star:hover,
+.star.active {
+    color: gold;
+}
+</style>
 <body>
     <!-- Topbar Start -->
     <?php include('includes/topbar.php'); ?>
@@ -74,17 +155,17 @@ while($row=mysqli_fetch_array($sql))
             <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
                     <a href="index.php" class="nav-item nav-link">Home</a>
-                    <a href="courses.php" class="nav-item nav-link active">Courses</a>
+                    <a href="courses.php" class="nav-item nav-link">Courses</a>
                     <?php if($_SESSION['login']!=""){ ?>
 
                     <a href="add-course.php" class="nav-item nav-link">Add Course</a>
                     <a href="profile.php" class="nav-item nav-link">Profile</a>
+                    <a href="logout.php" class="nav-item nav-link" style="color:red">Logout</a>
                     <?php }?>
 
                 </div>
-                <?php if($_SESSION['login']==""){ ?>
-                <a href="index.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-                <?php }else{ ?>
+
+                <?php if($_SESSION['login']!=""){ ?>
                 <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
                 <?php }?>
             </div>
@@ -118,46 +199,44 @@ while($row=mysqli_fetch_array($sql))
         <div class="container py-5">
             <div class="row">
                 <div class="col-lg-8">
+                    <form name="dept" method="post" id="imageForm" enctype="multipart/form-data">
+                        <div class="mb-5">
+                            <div class="section-title position-relative mb-5">
+                                <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Course
+                                    Detail</h6>
+                                <h1 class="display-4"><?php echo $courseName ?></h1>
+                            </div>
+                            <?php if($thumbnail==Null && $author==$_SESSION['sname']){ ?>
+                            <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Select File"
+                                title="Select File" src="img/addimage.png" style="cursor: pointer" />
+                            <span id="spnFilePath"></span>
+                            <input type="file" id="imageInput" id="photo" name="photo" style="display: none" />
+                            <?php }else if($thumbnail==Null && $author!=$_SESSION['sname']){?>
+                            <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Thumbnail"
+                                src="img/notavailable.png" />
+                            <?php }else if($thumbnail!=Null){?>
+                            <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Thumbnail"
+                                src="<?php echo $thumbnail; ?>" />
+                            <?php }?>
 
-                    <div class="mb-5">
-                        <div class="section-title position-relative mb-5">
-                            <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Course
-                                Detail</h6>
-                            <h1 class="display-4"><?php echo $courseName ?></h1>
+                            <?php if($thumbnail==Null && $author==$_SESSION['sname']){ ?>
+                            <button type="submit" name="submitpublic" class="btn btn-primary">Save
+                                changes</button>
+                            <?php }?>
+                            <p><?php echo $description ?></p>
                         </div>
-                        <?php if($thumbnail==Null && $author==$_SESSION['sname']){ ?>
-                        <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Select File"
-                            title="Select File" src="img/addimage.png" style="cursor: pointer" />
-                        <span id="spnFilePath"></span>
-                        <input type="file" id="FileUpload1" style="display: none" />
-                        <?php }else if($thumbnail==Null && $author!=$_SESSION['sname']){?>
-                        <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Thumbnail"
-                            src="img/notavailable.png" />
-                        <?php }else if($thumbnail!=Null){?>
-                        <img id="imgFileUpload" class="img-fluid rounded w-100 mb-4" alt="Thumbnail"
-                            src="img/header.jpg" />
-                        <?php }?>
-                        <p>Tempor erat elitr at rebum at at clita aliquyam consetetur. Diam dolor diam ipsum et, tempor
-                            voluptua sit consetetur sit. Aliquyam diam amet diam et eos sadipscing labore. Clita erat
-                            ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor
-                            consetetur takimata eirmod, dolores takimata consetetur invidunt magna dolores aliquyam
-                            dolores dolore. Amet erat amet et magna</p>
-
-                        <p>Sadipscing labore amet rebum est et justo gubergren. Et eirmod ipsum sit diam ut magna lorem.
-                            Nonumy vero labore lorem sanctus rebum et lorem magna kasd, stet amet magna accusam
-                            consetetur eirmod. Kasd accusam sit ipsum sadipscing et at at sanctus et. Ipsum sit
-                            gubergren dolores et, consetetur justo invidunt at et aliquyam ut et vero clita. Diam sea
-                            sea no sed dolores diam nonumy, gubergren sit stet no diam kasd vero.</p>
-                    </div>
+                    </form>
                     <h2 class="mb-3">Related Courses</h2>
+                    <?php  $sql=mysqli_query($con,"select c.portrait as portrait,c.id as courseID,c.courseUnit as courseUnit,c.rate as rate,c.courseName AS courseName,c.author,s.studentName AS author_name from course c  INNER JOIN students s ON c.author = s.StudentRegno where c.category='".$category."' and c.id!='$id'");
+                        if(mysqli_num_rows($sql)==0){                ?>
+                    <p>No Related Course Foundd</p>
+                    <?php }else{?>
                     <div class="owl-carousel related-carousel position-relative" style="padding: 0 30px;">
-                        <?php 
-                                    $sql=mysqli_query($con,"select c.id as courseID,c.courseUnit as courseUnit,c.rate as rate,c.courseName AS courseName,c.author,s.studentName AS author_name from course c  INNER JOIN students s ON c.author = s.StudentRegno where c.category='".$category."'");
-                while($row=mysqli_fetch_array($sql))
-                { ?>
+                        <?php while ($row = mysqli_fetch_assoc($sql)){ ?>
                         <a class="courses-list-item position-relative d-block overflow-hidden mb-2"
                             href="detail.php?id=<?php echo $row['courseID'];?>">
-                            <img class="img-fluid" src="img/courses-1.jpg" alt="">
+                            <img class="img-fluid" style="height:400px;object-fit:cover"
+                                src="<?php echo $row['portrait'];?>" alt="">
                             <div class="courses-text">
                                 <h4 class="text-center text-white px-3"><?php echo $row['courseName']?></h4>
                                 <div class="border-top w-100 mt-3">
@@ -173,6 +252,7 @@ while($row=mysqli_fetch_array($sql))
                         </a>
                         <?php }?>
                     </div>
+                    <?php }?>
                 </div>
 
                 <div class="col-lg-4 mt-5 mt-lg-0">
@@ -199,21 +279,29 @@ while($row=mysqli_fetch_array($sql))
                         </div>
                         <div class="d-flex justify-content-between border-bottom px-4">
                             <h6 class="text-white my-3">Skill level</h6>
-                            <h6 class="text-white my-3">All Level</h6>
+                            <h6 class="text-white my-3"><?php echo $skillvl ?></h6>
                         </div>
                         <div class="d-flex justify-content-between px-4">
                             <h6 class="text-white my-3">Language</h6>
-                            <h6 class="text-white my-3"></h6>
+                            <h6 class="text-white my-3"><?php echo $language ?></h6>
                         </div>
                         <h5 class="text-white py-3 px-4 m-0">Course Price: <?php echo $price;?> DT
                         </h5>
                         <div class="py-3 px-4">
                             <a class="btn btn-block btn-secondary py-3 px-5"
-                                href="flousi.php?amount=<?php echo $price;?>&&coursepin=<?php echo $coursePin;?>&&studentID=<?php echo $suser;?>">Enroll
+                                href="flousi.php?amount=<?php echo $price;?>&&coursepin=<?php echo $coursePin;?>&&studentID=<?php echo $authorID;?>">Enroll
                                 Now</a>
                         </div>
-                    </div>
 
+
+                    </div>
+                    <div class="rating" id="rating">
+                        <span class="star" data-value="1">&#9733;</span>
+                        <span class="star" data-value="2">&#9733;</span>
+                        <span class="star" data-value="3">&#9733;</span>
+                        <span class="star" data-value="4">&#9733;</span>
+                        <span class="star" data-value="5">&#9733;</span>
+                    </div>
 
 
                     <div class="mb-5">
@@ -222,6 +310,9 @@ while($row=mysqli_fetch_array($sql))
                             <?php 
                                     $sql=mysqli_query($con,"select * from category");
                                     $cnt=1;
+                                    if(mysqli_num_rows($sql) ==0){?>
+                            <li class="list-group-item text-center font-weight-bold ">No Category Found!</li>
+                            <?php }else{
                 while($row=mysqli_fetch_array($sql))
                 { ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
@@ -229,7 +320,7 @@ while($row=mysqli_fetch_array($sql))
                                     class="text-decoration-none h6 m-0"><?php echo htmlentities($row['nameCat']);?></a>
                                 <span class="badge badge-primary badge-pill">150</span>
                             </li>
-                            <?php }?>
+                            <?php }}?>
 
                         </ul>
                     </div>
@@ -239,7 +330,10 @@ while($row=mysqli_fetch_array($sql))
 
                         <?php 
                                     $sql=mysqli_query($con,"select * from course where author='".$authorID."' and id!='$id' LIMIT 4");
-                                    $cnt=1;
+                                    if(mysqli_num_rows($sql)==0){?>
+                        <p>No Data Found.</p>
+                        <?php
+                                }else{
                 while($row=mysqli_fetch_array($sql))
                 { ?>
                         <a class="d-flex align-items-center text-decoration-none mb-4"
@@ -256,12 +350,14 @@ while($row=mysqli_fetch_array($sql))
                                 </div>
                             </div>
                         </a>
-                        <?php }?>
+                        <?php }}?>
 
                     </div>
                 </div>
             </div>
         </div>
+
+
     </div>
     <!-- Detail End -->
 
@@ -276,7 +372,56 @@ while($row=mysqli_fetch_array($sql))
     <a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top"><i
             class="fa fa-angle-double-up"></i></a>
 
+    <script>
+    const stars = document.querySelectorAll('.star');
 
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const value = parseInt(star.getAttribute('data-value'));
+
+            // Remove active class from all stars
+            stars.forEach(s => s.classList.remove('active'));
+
+            // Add active class to the clicked star and all stars before it
+            for (let i = 0; i < value; i++) {
+                stars[i].classList.add('active');
+            }
+
+            // Send rating value to the server
+            sendRating(value);
+        });
+
+        star.addEventListener('mouseenter', () => {
+            const value = parseInt(star.getAttribute('data-value'));
+
+            // Add hover effect to all stars before the hovered one
+            for (let i = 0; i < value; i++) {
+                stars[i].classList.add('active');
+            }
+        });
+
+        star.addEventListener('mouseleave', () => {
+            // Remove hover effect from all stars
+            stars.forEach(s => s.classList.remove('active'));
+        });
+    });
+
+    function sendRating(value) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'save_rating.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log('Rating saved successfully');
+                } else {
+                    console.error('Error saving rating:', xhr.status);
+                }
+            }
+        };
+        xhr.send('rating=' + encodeURIComponent(value));
+    }
+    </script>
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
@@ -290,7 +435,7 @@ while($row=mysqli_fetch_array($sql))
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script type="text/javascript">
     $(function() {
-        var fileupload = $("#FileUpload1");
+        var fileupload = $("#imageInput");
         var filePath = $("#spnFilePath");
         var image = $("#imgFileUpload");
         image.click(function() {

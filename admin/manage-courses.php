@@ -6,8 +6,82 @@ if(strlen($_SESSION['alogin'])==0)
 header('location:index.php');
 }
 else{
-date_default_timezone_set('Asia/Kolkata');// change according timezone
+date_default_timezone_set('Africa/Tunis');// change according timezone
 $currentTime = date( 'd-m-Y h:i:s A', time () );
+// Define number of records per page
+$records_per_page = 5;
+
+// Get total number of records
+$sql_count = "SELECT COUNT(*) as total FROM course";
+$result_count = mysqli_query($con, $sql_count);
+$row_count = mysqli_fetch_assoc($result_count);
+$total_records = $row_count['total'];
+
+// Calculate total number of pages
+$total_pages = ceil($total_records / $records_per_page);
+
+// Handle search
+$search = "";
+$cat="";
+if (isset($_POST['search'])) {
+    $cat = $_POST['category'];
+    $search = mysqli_real_escape_string($con, $_POST['search']);
+}
+
+// Determine current page number
+if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+    $current_page = intval($_GET['page']);
+} else {
+    $current_page = 1;
+}
+
+// Calculate SQL LIMIT starting number for the results on the displaying page
+$start = ($current_page - 1) * $records_per_page;
+
+$sql = "SELECT * FROM course";
+if (empty($cat)) {
+    $sql .= " WHERE courseName LIKE '%$search%' OR author LIKE '%$search%' OR courseCode LIKE '%$search%'";
+}
+if (!empty($search)&&!empty($cat)) {
+    $sql .= " WHERE (courseName LIKE '%$search%' OR author LIKE '%$search%' OR courseCode LIKE '%$search%') and category='$cat'";
+}
+$sql .= " LIMIT $start, $records_per_page";
+$result = mysqli_query($con, $sql);
+// Check if a message is set in the session
+if(isset($_SESSION['message'])) {
+    echo '<script>alert("'.$_SESSION['message'].'")</script>';
+    // Unset the session variable to clear the message
+    unset($_SESSION['message']);
+}
+
+// Code for Deletion
+if(isset($_GET['del']))
+{
+mysqli_query($con,"delete from course where id = '".$_GET['id']."'");
+$_SESSION['message']="Course deleted!";
+header("location:manage-courses.php");
+      }
+
+
+if(isset($_POST['addCourse'])){
+    $courseCode=$_POST['courseCode'];
+    $courseName=$_POST['courseName'];
+    $coursePrice= $_POST['coursePrice'];
+    
+    // Insert user details into the database
+    
+
+    $sql=mysqli_query($con,"Insert into course(courseCode,courseName,price) values('$courseCode','$courseName','$coursePrice')");
+    if ($sql) {
+        $_SESSION['message']= "New course added successfully";
+    }else{
+        $_SESSION['message']= "Error adding new course, please try again.";
+    }
+    header('Location:manage-courses.php');
+}
+
+
+
 
 
 if(isset($_POST['submit']))
@@ -66,33 +140,8 @@ echo '<script>window.location.href=change-password.php</script>';
 
 
     <!-- Navbar Start -->
-    <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
-                <div class="navbar-nav mx-auto py-0">
-                    <a href="index.php" class="nav-item nav-link active">Home</a>
-                    <a href="courses.php" class="nav-item nav-link">Courses</a>
-                    <?php if($_SESSION['alogin']!=""){ ?>
+    <?php include("includes/navbar.php"); ?>
 
-                    <a href="add-course.php" class="nav-item nav-link">Add Course</a>
-                    <a href="profile.php" class="nav-item nav-link">Profile</a>
-                    <?php }?>
-
-                </div>
-                <?php if($_SESSION['alogin']==""){ ?>
-                <a href="index.php#login" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-                <?php }else{ ?>
-                <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
-                <?php }?>
-            </div>
-        </nav>
-    </div>
     <!-- Navbar End -->
 
 
@@ -105,6 +154,32 @@ echo '<script>window.location.href=change-password.php</script>';
                 <i class="fa fa-angle-double-right pt-1 px-3"></i>
                 <p class="m-0 text-uppercase">Manage Students</p>
             </div>
+            <form method="post">
+                <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <select class="btn btn-outline-light bg-white text-body px-4" name="category">
+                                <option value="">Category</option>
+
+                                <?php $sql=mysqli_query($con,"select * from category");
+                                $cnt=1;
+                                while($row=mysqli_fetch_array($sql))
+                                { ?>
+                                <option value="<?php echo htmlentities($row['id']);?>">
+                                    <?php echo htmlentities($row['nameCat']);?></option>
+                                <?php $cnt++;
+                            }?>
+                            </select>
+
+                        </div>
+                        <input type="text" name="search" placeholder="Search..." value="<?php echo $search; ?>"
+                            class="form-control border-light" style="padding: 30px 25px;">
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary px-4 px-lg-5" name="submit" type="submit">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
         </div>
     </div>
@@ -112,61 +187,41 @@ echo '<script>window.location.href=change-password.php</script>';
 
 
     <!-- About Start -->
-    <div class="container-fluid py-5">
-        <div class="container py-5">
+    <div class="container-fluid">
+        <div class="container">
 
             <div class="row">
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <h1 class="page-head-line">Course </h1>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                Course
-                            </div>
-                            <font color="green" align="center">
-                                <?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?>
-                            </font>
-
-
-                            <div class="panel-body">
-                                <form name="dept" method="post">
-                                    <div class="form-group">
-                                        <label for="coursecode">Course Code </label>
-                                        <input type="text" class="form-control" id="coursecode" name="coursecode"
-                                            placeholder="Course Code" required />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="coursename">Course Name </label>
-                                        <input type="text" class="form-control" id="coursename" name="coursename"
-                                            placeholder="Course Name" required />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="courseunit">Course unit </label>
-                                        <input type="text" class="form-control" id="courseunit" name="courseunit"
-                                            placeholder="Course Unit" required />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="seatlimit">Seat limit </label>
-                                        <input type="text" class="form-control" id="seatlimit" name="seatlimit"
-                                            placeholder="Seat limit" required />
-                                    </div>
-
-                                    <button type="submit" name="submit" class="btn btn-default">Submit</button>
-                                </form>
+                <form method="post">
+                    <div class="row g-3 mb-5">
+                        <div class="col-md-3">
+                            <div class="form-floating mb-3">
+                                <input type="text" name="courseCode" class="form-control" id="floatingInput" required
+                                    placeholder="Enter Course Code">
+                                <label for="floatingInput">Course Code</label>
                             </div>
                         </div>
-                    </div>
+                        <div class="col-md-3">
+                            <div class="form-floating mb-3">
+                                <input type="text" name="courseName" class="form-control" id="floatingInput" required
+                                    placeholder="Enter Course Name">
+                                <label for="floatingInput">Course Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating mb-3">
+                                <input type="text" name="coursePrice" class="form-control" id="floatingInput" required
+                                    placeholder="Enter Course Price" pattern="[0-9]+">
+                                <label for="floatingInput">Price</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="submit" name="addCourse" value="Add Course"
+                                class="btn btn-info btn-group-lg w-100 mt-2">
+                        </div>
 
-                </div>
+                    </div>
+                </form>
+
                 <font color="red" align="center">
                     <?php echo htmlentities($_SESSION['delmsg']);?><?php echo htmlentities($_SESSION['delmsg']="");?>
                 </font>
@@ -178,25 +233,28 @@ echo '<script>window.location.href=change-password.php</script>';
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-                            <div class="table-responsive table-bordered">
-                                <table class="table">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped">
                                     <thead>
                                         <tr>
                                             <th>#</th>
                                             <th>Course Code</th>
                                             <th>Course Name </th>
                                             <th>Course Unit</th>
-                                            <th>Seat limit</th>
+                                            <th>User Rate</th>
                                             <th>Creation Date</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php
-$sql=mysqli_query($con,"select * from course");
-$cnt=1;
-while($row=mysqli_fetch_array($sql))
-{
+                                        <?php 
+                                        $cnt=1;
+if(mysqli_num_rows($result) == 0) {
+    // Display a paragraph if the courses table is null
+    echo "<p>No courses available at the moment.</p>";
+} else {
+    // Iterate through the results if there are rows in the table
+    while ($row = mysqli_fetch_assoc($result)) {
 ?>
 
 
@@ -205,25 +263,60 @@ while($row=mysqli_fetch_array($sql))
                                             <td><?php echo htmlentities($row['courseCode']);?></td>
                                             <td><?php echo htmlentities($row['courseName']);?></td>
                                             <td><?php echo htmlentities($row['courseUnit']);?></td>
-                                            <td><?php echo htmlentities($row['noofSeats']);?></td>
+                                            <td><?php echo htmlentities($row['rate']);?></td>
                                             <td><?php echo htmlentities($row['creationDate']);?></td>
                                             <td>
-                                                <a href="edit-course.php?id=<?php echo $row['id']?>">
-                                                    <button class="btn btn-primary"><i class="fa fa-edit "></i>
+                                                <a href="edit-course.php?id=<?php echo $row['coursePin']?>">
+                                                    <button class="btn btn-primary btn-sm"><i class="fa fa-edit "></i>
                                                         Edit</button> </a>
-                                                <a href="course.php?id=<?php echo $row['id']?>&del=delete"
+                                                <a href="manage-courses.php?id=<?php echo $row['id']?>&del=delete"
                                                     onClick="return confirm('Are you sure you want to delete?')">
-                                                    <button class="btn btn-danger">Delete</button>
+                                                    <button class="btn btn-danger btn-sm">Delete</button>
                                                 </a>
                                             </td>
                                         </tr>
                                         <?php 
 $cnt++;
-} ?>
+}} ?>
 
 
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="col-12">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination pagination-lg justify-content-center mb-0">
+                                        <?php if ($current_page > 1) {?>
+                                        <li class="page-item">
+                                            <a class="page-link rounded-0"
+                                                href="?page=<?php echo ($current_page - 1) . (empty($search) ? "" : "&search=$search"); ?>"
+                                                aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                        </li>
+                                        <?php }?>
+                                        <?php for ($page = 1; $page <= $total_pages; $page++) {
+                                
+                            ?>
+
+                                        <li class="page-item <?php if ($_GET['page']==$page)echo "active";?>"><a
+                                                class="page-link"
+                                                href="?page=<?php echo $page . (empty($search) ? "" : "&search=$search"); ?>"><?php echo $page;?></a>
+                                        </li>
+                                        <?php }?>
+                                        <?php if ($current_page < $total_pages) {?>
+                                        <li class="page-item">
+                                            <a class="page-link rounded-0"
+                                                href="?page=<?php echo ($current_page + 1) . (empty($search) ? "" : "&search=$search"); ?>"
+                                                aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                                <span class="sr-only">Next</span>
+                                            </a>
+                                        </li>
+                                        <?php }?>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>

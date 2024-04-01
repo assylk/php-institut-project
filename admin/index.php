@@ -2,6 +2,10 @@
 session_start();
 error_reporting(0);
 include("includes/config.php");
+if(strlen($_SESSION['alogin'])!=0)
+    {   
+header('location:profile.php');
+}else{
 if(isset($_POST['submit']))
 {
     $username=$_POST['username'];
@@ -12,7 +16,7 @@ if($num>0)
 {
 $_SESSION['alogin']=$_POST['username'];
 $_SESSION['id']=$num['id'];
-header("location:change-password.php");
+header("location:profile.php");
 exit();
 }
 else
@@ -62,3 +66,4 @@ exit();
     </div>
 </body>
 </html>
+<?php }?>

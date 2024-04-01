@@ -2,6 +2,12 @@
 session_start();
 error_reporting(0);
 include("includes/config.php");
+    // Check if a message is set in the session
+if(isset($_SESSION['errmsg'])) {
+    echo '<script>alert("'.$_SESSION['errmsg'].'")</script>';
+    // Unset the session variable to clear the message
+    unset($_SESSION['errmsg']);
+}
 $query=mysqli_query($con,"SELECT * FROM students");
 $countstudents=mysqli_num_rows($query);
 
@@ -17,7 +23,8 @@ if(isset($_POST['submit']))
 {
     $regno=$_POST['regno'];
     $password=md5($_POST['password']);
-$query=mysqli_query($con,"SELECT * FROM students WHERE StudentRegno='$regno' and password='$password'");
+    
+$query=mysqli_query($con,"SELECT * FROM students WHERE StudentRegno='$regno' and password='$password' ORDER BY RAND() LIMIT 8");
 $num=mysqli_fetch_array($query);
 
 if($num>0)
@@ -31,19 +38,10 @@ $uip=$_SERVER['REMOTE_ADDR'];
 $status=1;
 $log=mysqli_query($con,"insert into userlog(studentRegno,userip,status) values('".$_SESSION['login']."','$uip','$status')");
 header("location:index.php");
-echo "<script>
-    var style = document.createElement('style');
-    style.innerHTML = '.custom-alert { background-color: #f4f4f4; color: #333; padding: 20px; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }';
-    document.head.appendChild(style);
-    alertBox = document.createElement('div');
-    alertBox.className = 'custom-alert';
-    alertBox.innerHTML = 'Welcome Back';
-    document.body.appendChild(alertBox);
-</script>";
+$_SESSION['errmsg']="Successfully Loged In !";
 }else{
 $_SESSION['errmsg']="Invalid Reg no or Password";
-header("location:index.php");
-echo '<script>alert('.$_SESSION["errmsg"].')</script>';
+header("location:index.php#login");
 }
 }
 
@@ -51,7 +49,7 @@ echo '<script>alert('.$_SESSION["errmsg"].')</script>';
 
 
 //Code for Insertion
-if(isset($_POST['submit']))
+if(isset($_POST['submitMessage']))
 {
 $name=$_POST['name'];
 $email=$_POST['email'];
@@ -60,13 +58,12 @@ $msg=$_POST['msg'];
 $ret=mysqli_query($con,"insert into message(name,email,subject,msg) values('$name','$email','$subject','$msg')");
 if($ret)
 {
+    $_SESSION['errmsg']= "Your Message has been sent Successfully.";
     
-echo '<script>alert("Course Send Successfully !!")</script>';
-header("location:index.php");
 }else {
-echo '<script>alert("Error : Message not Send!!")</script>';
-echo '<script>window.location.href=index.php</script>';
+    $_SESSION['errmsg']= "Failed to send your message! Please try again later."; 
 }
+header("location:index.php");
 }
 
 
@@ -131,6 +128,7 @@ html {
 
                     <a href="add-course.php" class="nav-item nav-link">Add Course</a>
                     <a href="profile.php" class="nav-item nav-link">Profile</a>
+                    <a href="logout.php" class="nav-item nav-link" style="color:red">Logout</a>
                     <?php }?>
 
                 </div>
@@ -272,6 +270,7 @@ html {
 
 
     <!-- Courses Start -->
+
     <div class="container-fluid px-0 py-5">
         <div class="row mx-0 justify-content-center pt-5">
             <div class="col-lg-6">
@@ -284,19 +283,26 @@ html {
         <div class="owl-carousel courses-carousel">
 
             <?php
-$sql=mysqli_query($con,"select * from course");
+$sql = mysqli_query($con,"SELECT course.*, students.studentName AS author_name FROM course INNER JOIN students ON course.author = students.StudentRegno ORDER BY RAND() LIMIT 8");
+if(mysqli_num_rows($sql) == 0) {
+    ?>
+            <p>No Courses Available Now</p>
+            <?php
+            }else{
+
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {
 ?>
             <div class="courses-item position-relative">
-                <img class="img-fluid" src="img/courses-2.jpg" alt="">
+                <img class="img-fluid" style="height:400px;object-fit:cover"
+                    src="<?php echo htmlentities($row['portrait']); ?>" alt="">
                 <div class="courses-text">
                     <h4 class="text-center text-white px-3"><?php echo htmlentities($row['courseName']);?></h4>
                     <div class="border-top w-100 mt-3">
                         <div class="d-flex justify-content-between p-4">
                             <span class="text-white"><i
-                                    class="fa fa-user mr-2"></i><?php echo htmlentities($row['author']);?></span>
+                                    class="fa fa-user mr-2"></i><?php echo htmlentities($row['author_name']);?></span>
                             <span class="text-white"><i class="fa fa-star mr-2"></i>4.5
                                 <small>(<?php echo htmlentities($row['courseUnit']); ?>)</small></span>
                         </div>
@@ -307,9 +313,10 @@ while($row=mysqli_fetch_array($sql))
                     </div>
                 </div>
             </div>
-            <?php $cnt++;}?>
+            <?php $cnt++;}}?>
 
         </div>
+
         <?php if($_SESSION['login']==""){ ?>
         <div class="row justify-content-center bg-image mx-0 mb-5">
             <div class="col-lg-6 py-5" id="login">
@@ -334,7 +341,7 @@ while($row=mysqli_fetch_array($sql))
 
                             <div class="col-md-12 ">
                                 <button class="btn btn-primary btn-block" type="submit" name="submit"
-                                    style="height: 60px;">Sign Up
+                                    style="height: 60px;">Sign In
                                     Now</button>
                             </div>
                         </div>
@@ -423,17 +430,20 @@ while($row=mysqli_fetch_array($sql))
             <div class="row align-items-center">
                 <div class="col-lg-5 mb-5 mb-lg-0">
                     <div class="section-title position-relative mb-4">
-                        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Testimonial</h6>
+                        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Testimonial
+                        </h6>
                         <h1 class="display-4">What Say Our Students</h1>
                     </div>
-                    <p class="m-0">Discover what our students have to say about Ismaik! Hear firsthand experiences and
-                        testimonials from individuals who have benefited from our courses. Join our community and share
+                    <p class="m-0">Discover what our students have to say about Ismaik! Hear firsthand experiences
+                        and
+                        testimonials from individuals who have benefited from our courses. Join our community and
+                        share
                         your success story today!</p>
                 </div>
                 <div class="col-lg-7">
                     <div class="owl-carousel testimonial-carousel">
                         <?php
-$sql=mysqli_query($con,"select * from message");
+$sql=mysqli_query($con,"select * from message ORDER BY RAND() LIMIT 6");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {
@@ -524,9 +534,10 @@ while($row=mysqli_fetch_array($sql))
                                     placeholder="Message" name="msg" required="required"></textarea>
                             </div>
                             <div>
-                                <button class="btn btn-primary py-3 px-5" type="submit" name="submit">Send
+                                <button class="btn btn-primary py-3 px-5" type="submit" name="submitMessage">Send
                                     Message</button>
                             </div>
+
                         </form>
                     </div>
                 </div>

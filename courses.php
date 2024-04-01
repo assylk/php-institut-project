@@ -99,12 +99,11 @@ $result = mysqli_query($con, $sql);
 
                     <a href="add-course.php" class="nav-item nav-link">Add Course</a>
                     <a href="profile.php" class="nav-item nav-link">Profile</a>
+                    <a href="logout.php" class="nav-item nav-link" style="color:red">Logout</a>
                     <?php }?>
 
                 </div>
-                <?php if($_SESSION['login']==""){ ?>
-                <a href="index.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-                <?php }else{ ?>
+                <?php if($_SESSION['login']!=""){ ?>
                 <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
                 <?php }?>
             </div>
@@ -154,8 +153,8 @@ $result = mysqli_query($con, $sql);
 
 
     <!-- Courses Start -->
-    <div class="container-fluid py-5">
-        <div class="container py-5">
+    <div class="container-fluid">
+        <div class="container">
             <div class="row mx-0 justify-content-center">
                 <div class="col-lg-8">
                     <div class="section-title text-center position-relative mb-5">
@@ -176,7 +175,8 @@ if(mysqli_num_rows($result) == 0) {
                 <div class="col-lg-4 col-md-6 pb-4">
                     <a class="courses-list-item position-relative d-block overflow-hidden mb-2"
                         href="detail.php?id=<?php echo $row['id'];?>">
-                        <img class="img-fluid" src="img/courses-1.jpg" alt="">
+                        <img class="img-fluid" style="height:400px;object-fit:cover"
+                            src="<?php echo $row['portrait']; ?>" alt="">
                         <div class="courses-text">
                             <h4 class="text-center text-white px-3"><?php echo $row['courseName'];?></h4>
                             <div class="border-top w-100 mt-3">

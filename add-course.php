@@ -1,6 +1,12 @@
 <?php
 session_start();
 include('includes/config.php');
+    // Check if a message is set in the session
+if(isset($_SESSION['errmsg'])) {
+    echo '<script>alert("'.$_SESSION['errmsg'].'")</script>';
+    // Unset the session variable to clear the message
+    unset($_SESSION['errmsg']);
+}
 if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
@@ -8,6 +14,7 @@ header('location:index.php');
 
 
 else{
+
     $authorID=$_SESSION['login'];
     $sql=mysqli_query($con,"select * from course where id='".$coursecode."'");
 
@@ -31,6 +38,67 @@ function generateUniqueCourseID() {
 
     return $unique_id;
 }
+
+
+
+
+if(isset($_POST['submit'])) {
+    $target_dir = "thumbnailimg/";
+
+    // Check if a file is selected
+    if($_FILES["photo"]["error"] == UPLOAD_ERR_OK) {
+        $timestamp = time(); // Current timestamp
+        $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
+
+        // Check file size (limit to 5MB)
+        $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
+        if ($_FILES["photo"]["size"] > $max_file_size) {
+            $_SESSION['errmsg']="Sorry, your file is too large (max 5MB).";
+            
+        }
+
+        // Check file type
+        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
+        $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        if (!in_array($file_extension, $allowed_types)) {
+            $_SESSION['errmsg']="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            
+        }
+
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            $_SESSION['errmsg']="Sorry, file already exists.";
+            
+        }
+
+        // Upload file
+        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
+            // Save file path to database
+            $course_id = generateUniqueCourseID();
+
+            $coursecode=$_POST['coursecode'];
+            $coursename=$_POST['coursename'];
+            $coursecategory=$_POST['coursecategory'];
+            $courseprice=$_POST['courseprice'];
+            $image_path = $target_file;
+            $ret=mysqli_query($con,"insert into course(coursePin,courseCode,courseName,author,category,price,portrait) values('$course_id','$coursecode','$coursename','$authorID','$coursecategory','$courseprice','$image_path')");
+            if($ret) {
+                $_SESSION['errmsg']="Course Added Successfully !";
+            } else {
+                $_SESSION['errmsg']="Something went wrong. Please try again!";
+            }
+        } else {
+            $_SESSION['errmsg']="Sorry, there was an error uploading your file.";
+        }
+    } else {
+        $_SESSION['errmsg']="No image selected.";
+    }
+
+ header("location:add-course.php");
+ exit();
+}
+
+
 
 
     
@@ -57,18 +125,12 @@ if($ret)
 echo '<script>alert("Course Added By '.$_SESSION['sname'].' ")</script>';
 
 }else {
-echo '<script>alert("Error : Course not created!!")</script>';
-echo '<script>window.location.href=course.php</script>';
+    $_SESSION['errmsg']= "Error in adding the Course";
 }
+header("Location:add-course.php");
 }
 
-//Code for Insertion
-if(isset($_GET['del']))
-{
-mysqli_query($con,"delete from course where id = '".$_GET['id']."'");
-echo '<script>alert("Course deleted!!")</script>';
-echo '<script>window.location.href=course.php</script>';
-      }
+
 ?>
 
 
@@ -115,44 +177,12 @@ echo '<script>window.location.href=course.php</script>';
 <body>
     <!-- Topbar Start -->
 
-    <div class="container-fluid bg-dark">
-
-        <div class="row py-2 px-lg-5">
-            <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
-                <div class="d-inline-flex align-items-center text-white">
-                    <small><i class="fa fa-phone-alt mr-2"></i>+012 345 6789</small>
-                    <small class="px-3">|</small>
-                    <small><i class="fa fa-envelope mr-2"></i>info@example.com</small>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center text-lg-right">
-                <div class="d-inline-flex align-items-center">
-                    <a class="text-white px-2" href="">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a class="text-white px-2" href="">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a class="text-white px-2" href="">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a class="text-white px-2" href="">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a class="text-white pl-2" href="">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include("includes/topbar.php");?>
     <!-- Topbar End -->
 
 
     <!-- Navbar Start -->
     <div class="container-fluid p-0">
-
-
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
                 <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
@@ -168,12 +198,11 @@ echo '<script>window.location.href=course.php</script>';
 
                     <a href="add-course.php" class="nav-item nav-link active">Add Course</a>
                     <a href="profile.php" class="nav-item nav-link">Profile</a>
+                    <a href="logout.php" class="nav-item nav-link" style="color:red">Logout</a>
                     <?php }?>
 
                 </div>
-                <?php if($_SESSION['login']==""){ ?>
-                <a href="index.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-                <?php }else{ ?>
+                <?php if($_SESSION['login']!=""){ ?>
                 <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
                 <?php }?>
             </div>
@@ -199,9 +228,9 @@ echo '<script>window.location.href=course.php</script>';
 
 
     <!-- About Start -->
-    <div class="container-fluid py-5">
-        <div class="container py-5">
-            <form method="post" class="row g-3">
+    <div class="container-fluid ">
+        <div class="container">
+            <form method="post" id="imageForm" enctype="multipart/form-data" class="row g-3">
                 <div class="col-md-6">
                     <div class="form-floating">
                         <input class="form-control" name="coursename" placeholder="Enter Course Name"
@@ -240,6 +269,11 @@ echo '<script>window.location.href=course.php</script>';
                     </div>
                 </div>
                 <div class="col-md-12">
+                    <input class="form-control" id="imageInput" id="photo" name="photo" type="file"
+                        id="floatingTextarea">
+
+                </div>
+                <div class="col-md-12">
                     <input type="submit" name="submit" class="btn btn-primary w-100" value="Next">
                 </div>
             </form>
@@ -276,6 +310,46 @@ echo '<script>window.location.href=course.php</script>';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var image = document.getElementById('imageInput');
+        var cropper;
+
+        image.addEventListener('change', function() {
+            var files = this.files;
+            var reader;
+
+            if (files && files.length) {
+                reader = new FileReader();
+                reader.onload = function(event) {
+                    var dataUrl = event.target.result;
+
+                    if (cropper) {
+                        cropper.replace(dataUrl);
+                    } else {
+                        var imageElement = document.createElement('img');
+                        imageElement.src = dataUrl;
+                        imageElement.id = 'cropperImage';
+                        document.body.appendChild(imageElement);
+                        cropper = new Cropper(imageElement, {
+                            aspectRatio: 1,
+                            viewMode: 2,
+                            crop: function(event) {
+                                // Output cropped area data
+                                console.log(event.detail.x);
+                                console.log(event.detail.y);
+                                console.log(event.detail.width);
+                                console.log(event.detail.height);
+                            }
+                        });
+                    }
+                };
+
+                reader.readAsDataURL(files[0]);
+            }
+        });
+    });
     </script>
     <script src="js/main.js"></script>
 </body>

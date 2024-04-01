@@ -2,6 +2,7 @@
 session_start();
 include('includes/config.php');
 error_reporting(0);
+
 if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
@@ -9,24 +10,30 @@ header('location:index.php');
 else{
   $regid=$_GET['id'];
 
+  
 if(isset($_POST['submit']))
 {
   $regid=intval($_GET['id']);
   $studentname=$_POST['studentname'];
-  $photo=$_FILES["photo"]["name"];
+  $studentregno=$_POST['studentregno'];
+  $pincode=$_POST['pincode'];
 
 
 $cgpa=$_POST['cgpa'];
-move_uploaded_file($_FILES["photo"]["tmp_name"],"studentphoto/".$_FILES["photo"]["name"]);
-$ret=mysqli_query($con,"update students set studentName='$studentname',studentPhoto='$photo',cgpa='$cgpa'  where StudentRegno='$regid'");
+$ret=mysqli_query($con,"update students set studentName='$studentname',pincode='$pincode',studentregno='$studentregno',cgpa='$cgpa'  where StudentRegno='$regid'");
 if($ret)
 {
-echo '<script>alert("Student Record updated Successfully !!")</script>';
-echo '<script>window.location.href=manage-students.php</script>';
+    $_SESSION['message']="Student Record updated Successfully !!";
+
+
 }else{
-  echo '<script>alert("Error : Student Record not update")</script>';
-echo '<script>window.location.href=manage-students.php</script>';
+        $_SESSION['message']="Error : Student Record not update";
+
+
 }
+header("location:manage-students.php");
+
+
 }
 ?>
 <!DOCTYPE html>
@@ -75,33 +82,8 @@ echo '<script>window.location.href=manage-students.php</script>';
 
 
     <!-- Navbar Start -->
-    <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
-                <div class="navbar-nav mx-auto py-0">
-                    <a href="index.php" class="nav-item nav-link active">Home</a>
-                    <a href="courses.php" class="nav-item nav-link">Courses</a>
-                    <?php if($_SESSION['alogin']!=""){ ?>
+    <?php include("includes/navbar.php"); ?>
 
-                    <a href="add-course.php" class="nav-item nav-link">Add Course</a>
-                    <a href="profile.php" class="nav-item nav-link">Profile</a>
-                    <?php }?>
-
-                </div>
-                <?php if($_SESSION['alogin']==""){ ?>
-                <a href="index.php#login" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-                <?php }else{ ?>
-                <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
-                <?php }?>
-            </div>
-        </nav>
-    </div>
     <!-- Navbar End -->
 
 
@@ -145,11 +127,11 @@ while($row=mysqli_fetch_array($sql))
                 </div>
                 <div class="mb-3 form-floating">
                     <input type="text" class="form-control" id="floatingInputInvalid" name="studentregno"
-                        value="<?php echo htmlentities($row['StudentRegno']);?>" placeholder="Student Reg no" readonly>
+                        value="<?php echo htmlentities($row['StudentRegno']);?>" placeholder="Student Reg no">
                     <label for="floatingInputInvalid">Student Reg No</label>
                 </div>
                 <div class="mb-3 form-floating">
-                    <input type="text" class="form-control" id="floatingInputInvalid" name="Pincode" readonly
+                    <input type="text" class="form-control" name="pincode" id="floatingInputInvalid" name="Pincode"
                         value="<?php echo htmlentities($row['pincode']);?>" required value="">
                     <label for="floatingInputInvalid">Pincode</label>
                 </div>
@@ -158,18 +140,7 @@ while($row=mysqli_fetch_array($sql))
                         value="<?php echo htmlentities($row['cgpa']);?>" required value="">
                     <label for="floatingInputInvalid">CGPA</label>
                 </div>
-                <div class="form-group">
-                    <label for="studentphoto">Student Photo </label>
-                    <?php if($row['studentPhoto']==Null){ ?>
-                    <img src="img/testimonial-1.jpg" width="200" height="200"><?php } else {?>
-                    <img src="img/<?php echo htmlentities($row['studentPhoto']);?>" width="200" height="200">
-                    <?php } ?>
-                </div>
-                <div class="mb-3 form-floating">
-                    <input type="file" class="form-control" id="floatingInputInvalid" placeholder="name@example.com"
-                        value="">
-                    <label for="floatingInputInvalid">Student Image</label>
-                </div>
+
                 <button type="submit" name="submit" id="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>

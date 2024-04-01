@@ -4,7 +4,9 @@ include('includes/config.php');
 error_reporting(0);
 
 
-                                        
+
+
+                     echo "<script>alert(".'$_SESSION["alogin"]'.")</script>"   ;                
 
 // Check if a message is set in the session
 if(isset($_SESSION['del'])) {
@@ -23,7 +25,7 @@ if(isset($_SESSION['message'])) {
 }
 
 
-$user=$_SESSION['login'];
+$user=$_SESSION['alogin'];
 
 $sql = "SELECT * from course where author='$user'";
 $result = mysqli_query($con, $sql);
@@ -33,118 +35,35 @@ $result = mysqli_query($con, $sql);
 
 
 
-if(strlen($_SESSION['login'])==0)
+if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
 }
 else{
-
-    $totmoney=mysqli_query($con,"select sum(price) as totmoney from enrolledCourses where author='".$_SESSION['login']."'"); 
+    $totmoney=mysqli_query($con,"select sum(price) as totmoney from enrolledCourses where author='".$_SESSION['alogin']."'"); 
     while ($row = mysqli_fetch_assoc($totmoney)) {
         $totalamount = $row["totmoney"];
         
     }
     $totalamount=$totalamount/1000;
-    
+date_default_timezone_set('Asia/Kolkata');// change according timezone
+$currentTime = date( 'd-m-Y h:i:s A', time () );
 
 
-date_default_timezone_set('Africa/Tunisia');// change according timezone
-$currentTime = date( 'd-m-Y h:i:s', time () );
-
-
- $sql=mysqli_query($con,"select * from students where StudentRegno='".$_SESSION['login']."'");
-while($row=mysqli_fetch_array($sql)){
-    $studentName=$row['studentName'];
-    $studentPhoto=$row['studentPhoto'];
-    $email=$row['email'];
-    $city=$row['city'];
-    $state=$row['state'];
-    $zip=$row['zip'];
-    $pincode=$row['pincode'];
-    $cgpa=$row['cgpa'];    
-}
-
-
-
-
-
-
-
-if(isset($_POST['submitpublic'])) {
-    $target_dir = "studentphoto/";
-
-    // Check if a file is selected
-    if($_FILES["photo"]["error"] == UPLOAD_ERR_OK) {
-        $timestamp = time(); // Current timestamp
-        $target_file = $target_dir . $timestamp . "_" . basename($_FILES["photo"]["name"]);
-
-        // Check file size (limit to 5MB)
-        $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
-        if ($_FILES["photo"]["size"] > $max_file_size) {
-            $_SESSION['errmsg']="Sorry, your file is too large (max 5MB).";
-            
-        }
-
-        // Check file type
-        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
-        $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        if (!in_array($file_extension, $allowed_types)) {
-            $_SESSION['errmsg']="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-            
-        }
-
-        // Check if file already exists
-        if (file_exists($target_file)) {
-            $_SESSION['errmsg']="Sorry, file already exists.";
-            
-        }
-
-        // Upload file
-        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
-            // Save file path to database
-            $image_path = $target_file;
-            $ret = mysqli_query($con,"UPDATE students SET studentPhoto='$image_path' WHERE StudentRegno='".$_SESSION['login']."'");
-            if($ret) {
-                $_SESSION['errmsg']="Student Image updated Successfully !!";
-            } else {
-                $_SESSION['errmsg']="Something went wrong. Please try again!";
-            }
-        } else {
-            $_SESSION['errmsg']="Sorry, there was an error uploading your file.";
-        }
-    } else {
-        $_SESSION['errmsg']="No image selected.";
-    }
-
- header("location:profile.php");
- exit();
-}
-
-
-
-
-
-
-
-
-
-//Code for Change Password
-if(isset($_POST['changepass']))
-{ 
-$regno=$_SESSION['login'];   
-$currentpass=md5($_POST['cpass']);
-$newpass=md5($_POST['newpass']);
-$sql=mysqli_query($con,"SELECT password FROM  students where password='$currentpass' && studentRegno='$regno'");
+if(isset($_POST['submit']))
+{
+$sql=mysqli_query($con,"SELECT password FROM  admin where password='".md5($_POST['cpass'])."' && username='".$_SESSION['alogin']."'");
 $num=mysqli_fetch_array($sql);
 if($num>0)
 {
- $con=mysqli_query($con,"update students set password='$newpass', updationDate='$currentTime' where studentRegno='$regno'");
+ $con=mysqli_query($con,"update admin set password='".md5($_POST['newpass'])."', updationDate='$currentTime' where username='".$_SESSION['alogin']."'");
 echo '<script>alert("Password Changed Successfully !!")</script>';
-}else{
-echo '<script>alert("Current Password not match !!")</script>';
+echo '<script>window.location.href=change-password.php</script>';
+}else {
+echo '<script>alert("Old Password not match !!")</script>';
+echo '<script>window.location.href=change-password.php</script>';
 }
 }
-
 
 
 
@@ -177,10 +96,10 @@ echo '<script>alert("Current Password not match !!")</script>';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
 </head>
 <style>
 .walletBalanceCard {
@@ -287,33 +206,7 @@ function valid() {
 
 
     <!-- Navbar Start -->
-    <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
-                <div class="navbar-nav mx-auto py-0">
-                    <a href="index.php" class="nav-item nav-link">Home</a>
-                    <a href="courses.php" class="nav-item nav-link">Courses</a>
-                    <?php if($_SESSION['login']!=""){ ?>
-
-                    <a href="add-course.php" class="nav-item nav-link">Add Course</a>
-                    <a href="profile.php" class="nav-item nav-link active">Profile</a>
-                    <a href="logout.php" class="nav-item nav-link" style="color:red">Logout</a>
-                    <?php }?>
-
-                </div>
-
-                <?php if($_SESSION['login']!=""){ ?>
-                <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
-                <?php }?>
-            </div>
-        </nav>
-    </div>
+    <?php include("includes/navbar.php"); ?>
     <!-- Navbar End -->
 
 
@@ -359,7 +252,6 @@ function valid() {
 
                     <button class="addmoney"><span class="plussign">+</span>Withdraw</button>
                 </div>
-
                 <span
                     style="color:red;"><?php echo htmlentities($_SESSION['errmsg']); ?><?php echo htmlentities($_SESSION['errmsg']="");?></span>
                 <div class="container p-0">
@@ -371,11 +263,8 @@ function valid() {
                                     <h5 class="card-title mb-0">Profile Settings</h5>
                                 </div>
                                 <div class="list-group list-group-flush" role="tablist">
+
                                     <a class="list-group-item list-group-item-action active" data-toggle="list"
-                                        href="#account" role="tab">
-                                        Account
-                                    </a>
-                                    <a class="list-group-item list-group-item-action" data-toggle="list"
                                         href="#password" role="tab">
                                         Password
                                     </a>
@@ -397,145 +286,39 @@ function valid() {
                         </div>
                         <div class="col-md-7 col-xl-8">
                             <div class="tab-content">
-                                <div class="tab-pane fade show active" id="account" role="tabpanel">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <div class="card-actions float-right">
 
-                                            </div>
-                                            <h5 class="card-title mb-0">Public info</h5>
-                                        </div>
-
-                                        <div class="card-body">
-                                            <form name="dept" method="post" id="imageForm"
-                                                enctype="multipart/form-data">
-                                                <div class="row">
-
-                                                    <div class="col-md-4">
-                                                        <div class="text-center">
-                                                            <?php if($studentPhoto==""){ ?>
-                                                            <img alt="Andrew Jones"
-                                                                src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                                                                class="rounded-circle img-responsive mt-2" width="128"
-                                                                height="128">
-                                                            <?php } else {?>
-                                                            <img src="<?php echo $studentPhoto?>"
-                                                                alt="<?php echo $studentPhoto?>" width="200"
-                                                                height="200"
-                                                                style="border-radius: 50%;object-fit:cover">
-                                                            <?php } ?>
-                                                            <div class="mt-2">
-                                                                <input type="file" id="imageInput" id="photo"
-                                                                    name="photo" value="<?php echo $studentPhoto?>">
-                                                            </div>
-                                                            <small>For best results, use an image at least 128px by
-                                                                128px in .jpg format</small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" name="submitpublic" class="btn btn-primary">Save
-                                                    changes</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <div class="card-actions float-right">
-
-                                            </div>
-                                            <h5 class="card-title mb-0">Private info</h5>
-                                        </div>
-                                        <font color="<?php echo $text_color ?>" align="center">
-                                            <?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?>
-                                        </font>
-
-                                        <div class="card-body">
-                                            <form name="dept" method="post" action="sys/profile-sys.php"
-                                                enctype="multipart/form-data">
-                                                <div class="form-row">
-                                                    <div class="form-group col-md-6">
-                                                        <label for="inputFirstName">Student Name</label>
-                                                        <input type="text" class="form-control" id="inputFirstName"
-                                                            placeholder="First name" id="studentname" name="studentname"
-                                                            value="<?php echo $studentName;?>">
-                                                    </div>
-                                                    <div class="form-group col-md-6">
-                                                        <label for="inputLastName">Student Reg No</label>
-                                                        <input type="text" class="form-control" disabled
-                                                            id="inputLastName" placeholder="Reg No" id="studentregno"
-                                                            name="studentregno"
-                                                            value="<?php echo $_SESSION['login'];?>">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="inputEmail4">Email</label>
-                                                    <input type="email" class="form-control" id="inputEmail4"
-                                                        placeholder="Email" name="email" value="<?php echo $email;?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="inputAddress">Pincode</label>
-                                                    <input type="text" class="form-control" id="inputAddress"
-                                                        id="Pincode" name="Pincode" placeholder="Pincode" readonly
-                                                        value="<?php echo $pincode;?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="inputAddress2">CGPA </label>
-                                                    <input type="text" class="form-control" id="cgpa" name="cgpa"
-                                                        id="inputAddress2" placeholder="CGPA"
-                                                        value="<?php echo $cgpa;?>">
-                                                </div>
-                                                <div class="form-row">
-                                                    <div class="form-group col-md-6">
-                                                        <label for="inputCity">City</label>
-                                                        <input type="text" name="city" value="<?php echo $city;?>"
-                                                            class="form-control" id="inputCity">
-                                                    </div>
-                                                    <div class="form-group col-md-4">
-                                                        <label for="inputState">State</label>
-                                                        <select id="inputState" name="state" class="form-control">
-                                                            <option selected="<?php echo $state;?>">
-                                                                <?php echo $state;?></option>
-                                                            <option value="Sousse">Sousse</option>
-                                                            <option value="Monastir">Monastir</option>
-                                                            <option value="Mehdia">Mehdia</option>
-                                                            <option value="Kairouan">Kairouan</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group col-md-2">
-                                                        <label for="inputZip">Zip</label>
-                                                        <input type="text" value="<?php echo $zip;?>" name="zip"
-                                                            class="form-control" id="inputZip">
-                                                    </div>
-                                                </div>
-                                                <button type="submit" name="submitprivate" class="btn btn-primary">Save
-                                                    changes</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="password" role="tabpanel">
+                                <div class="tab-pane fade show active" id="password" role="tabpanel">
                                     <div class="card">
                                         <div class="card-body">
-                                            <h5 class="card-title">Password</h5>
-                                            <form name="chngpwd" method="post" onSubmit="return valid();">
-                                                <div class="form-group">
-                                                    <label for="inputPasswordCurrent">Current password</label>
-                                                    <input type="password" name="cpass"
-                                                        placeholder="Enter Your current Password" class="form-control"
-                                                        id="inputPasswordCurrent">
+                                            <h5 class="card-title">Change Password</h5>
+                                            <form name="chngpwd" method="post" class="row g-3"
+                                                onSubmit="return valid();">
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="">
+                                                        <input class="form-control " name="cpass"
+                                                            placeholder="Enter Current Password" id="floatingTextarea"
+                                                            id="exampleInputPassword1" required>
+                                                    </div>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label for="inputPasswordNew">New password</label>
-                                                    <input type="password" name="newpass" class="form-control"
-                                                        placeholder="Enter Your new Password" id="inputPasswordNew">
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="">
+                                                        <input class="form-control" name="newpass"
+                                                            placeholder="Enter New Password" id="floatingTextarea"
+                                                            id="exampleInputPassword1" required>
+                                                    </div>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label for="inputPasswordNew2">Verify password</label>
-                                                    <input type="password" name="cnfpass" class="form-control"
-                                                        placeholder="Confirm Your new Password" id="inputPasswordNew2">
+
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="">
+                                                        <input class="form-control" type="text" name="cnfpass"
+                                                            placeholder="Enter Confirm Password" id="floatingTextarea"
+                                                            id="exampleInputPassword1" required>
+                                                    </div>
                                                 </div>
-                                                <button type="submit" name="changepass" class="btn btn-primary">Save
-                                                    changes</button>
+                                                <div class="col-md-12 mb-5">
+                                                    <input type="submit" name="submit" class="btn btn-primary w-100"
+                                                        value="Next">
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
@@ -598,7 +381,7 @@ function valid() {
                                         <div class="card-body">
                                             <h5 class="card-title">Enrolled Courses History</h5>
                                             <?php 
-                                            $sql2=mysqli_query($con,"Select * from enrolledCourses where studentID='".$_SESSION['login']."'");
+                                            $sql2=mysqli_query($con,"Select * from enrolledCourses where studentID='".$_SESSION['alogin']."'");
                                     if(mysqli_num_rows($sql2) == 0) {
                                         // Display a paragraph if the courses table is null
                                         echo "<p>No courses Enrolled at the moment.</p>";
@@ -665,13 +448,13 @@ function valid() {
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/counterup/counterup.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/counterup/counterup.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+    <script src="../js/main.js"></script>
 
 
     <!-- JavaScript code to initialize Cropper.js -->

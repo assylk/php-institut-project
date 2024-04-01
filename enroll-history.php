@@ -58,23 +58,17 @@ header('location:index.php');
             </button>
             <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
-                    <a href="index.html" class="nav-item nav-link">Home</a>
-                    <a href="about.html" class="nav-item nav-link active">About</a>
-                    <a href="course.html" class="nav-item nav-link">Courses</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
-                        <div class="dropdown-menu m-0">
-                            <a href="detail.html" class="dropdown-item">Course Detail</a>
-                            <a href="feature.html" class="dropdown-item">Our Features</a>
-                            <a href="team.html" class="dropdown-item">Instructors</a>
-                            <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                        </div>
-                    </div>
-                    <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    <a href="index.php" class="nav-item nav-link">Home</a>
+                    <a href="courses.php" class="nav-item nav-link">Courses</a>
+                    <?php if($_SESSION['login']!=""){ ?>
+
+                    <a href="add-course.php" class="nav-item nav-link">Add Course</a>
+                    <a href="profile.php" class="nav-item nav-link">Profile</a>
+                    <a href="logout.php" class="nav-item nav-link" style="color:red">Logout</a>
+                    <?php }?>
+
                 </div>
-                <?php if($_SESSION['login']==""){ ?>
-                <a href="index.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Join Us</a>
-                <?php }else{ ?>
+                <?php if($_SESSION['login']!=""){ ?>
                 <a href="logout.php" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
                 <?php }?>
             </div>
