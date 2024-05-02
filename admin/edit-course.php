@@ -15,7 +15,7 @@ if(isset($_SESSION['message'])) {
     unset($_SESSION['message']);
 }
         // Retrieve existing values from the database
-$existing_course = mysqli_query($con, "SELECT * FROM course WHERE coursePin='$a'");
+$existing_course = mysqli_query($con, "SELECT * FROM course WHERE id='$a'");
 $row = mysqli_fetch_assoc($existing_course);
 $existing_courseName = $row['courseName'];
 $existing_price = $row['price'];
@@ -63,7 +63,7 @@ while($r=mysqli_fetch_assoc($scat)){
 
     // If there are changes, update the database
     if (!empty($changes)) {
-        $update_query = "UPDATE course SET " . implode(', ', $changes) . ",updationDate='$date' WHERE coursePin='$a'";
+        $update_query = "UPDATE course SET " . implode(', ', $changes) . ",updationDate='$date' WHERE id='$a'";
         $result = mysqli_query($con, $update_query);
         if ($result) {
             $_SESSION['message']="Course Updated Successfully";
@@ -174,7 +174,8 @@ while($r=mysqli_fetch_assoc($scat)){
                         </div>
 
                         <div class="form-floating mb-3">
-                            <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
+                            <select class="form-select" id="floatingSelect" name="skillvl"
+                                aria-label="Floating label select example">
                                 <option selected value="<?php echo $existing_skillvl ?>"><?php echo $existing_skillvl ?>
                                 </option>
                                 <option value="Regular">Regular</option>

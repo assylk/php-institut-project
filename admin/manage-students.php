@@ -120,7 +120,7 @@ if(isset($_GET['pass']))
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Manage Student</title>
+    <title>Connect Courses - Manage Student</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">

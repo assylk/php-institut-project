@@ -17,7 +17,7 @@ header('location:index.php');
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Enroll History</title>
+    <title>Connect Courses - Enroll History</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -50,8 +50,8 @@ header('location:index.php');
     <!-- Navbar Start -->
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
+            <a href="index.php" class="navbar-brand ml-lg-3">
+                <img src="img/logo2.png" alt="Logo" style="width: 250px;">
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>

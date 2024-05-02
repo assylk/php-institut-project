@@ -154,7 +154,7 @@ if (!empty($changes)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Connect Courses - Edit Course</title>
     <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
 
@@ -186,8 +186,8 @@ if (!empty($changes)) {
     <!-- Navbar Start -->
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
+            <a href="index.php" class="navbar-brand ml-lg-3">
+                <img src="img/logo2.png" alt="Logo" style="width: 250px;">
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>

@@ -41,7 +41,7 @@ header("location:manage-students.php");
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Edit Student</title>
+    <title>Connect Courses - Edit Student</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">

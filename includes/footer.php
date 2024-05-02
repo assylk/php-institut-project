@@ -2,12 +2,10 @@
     <div class="container mt-5 pt-5">
         <div class="row">
             <div class="col-md-6 mb-5">
-                <a href="index.html" class="navbar-brand">
-                    <h1 class="mt-n2 text-uppercase text-white"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
+                <a href="index.php" class="navbar-brand">
+                    <img src="img/logo2.png" style="width: 300px;" alt="connect courses">
                 </a>
-                <p class="m-0">Accusam nonumy clita sed rebum kasd eirmod elitr. Ipsum ea lorem at et diam est,
-                    tempor rebum ipsum sit ea tempor stet et consetetur dolores. Justo stet diam ipsum lorem vero
-                    clita diam</p>
+
             </div>
             <div class="col-md-6 mb-5">
                 <h3 class="text-white mb-4">Newsletter</h3>
@@ -27,7 +25,7 @@
                 <h3 class="text-white mb-4">Get In Touch</h3>
                 <p><i class="fa fa-map-marker-alt mr-2"></i>Kairouan, Rue ibn Jazzar</p>
                 <p><i class="fa fa-phone-alt mr-2"></i>+216 12 345 678</p>
-                <p><i class="fa fa-envelope mr-2"></i>ismaik-biblio@gmail.com</p>
+                <p><i class="fa fa-envelope mr-2"></i>connect-courses@gmail.com</p>
                 <div class="d-flex justify-content-start mt-4">
                     <a class="text-white mr-4" href="#"><i class="fab fa-2x fa-twitter"></i></a>
                     <a class="text-white mr-4" href="#"><i class="fab fa-2x fa-facebook-f"></i></a>
@@ -64,7 +62,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6 text-center text-md-left mb-3 mb-md-0">
-                <p class="m-0">Copyright &copy; <a class="text-white" href="#">Ismaik Bibliothéque</a>. All Rights
+                <p class="m-0">Copyright &copy; <a class="text-white" href="#">Connect Courses</a>. All Rights
                     Reserved.
                 </p>
             </div>

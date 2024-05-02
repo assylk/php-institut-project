@@ -41,7 +41,7 @@ if (empty($cat)) {
 if (!empty($search)&&!empty($cat)) {
     $sql .= " WHERE (courseName LIKE '%$search%' OR author LIKE '%$search%' OR courseCode LIKE '%$search%') and category='$cat'";
 }
-$sql .= " LIMIT $start, $records_per_page";
+$sql .= " order by courseName LIMIT $start, $records_per_page ";
 $result = mysqli_query($con, $sql);
 
 ?>
@@ -51,7 +51,7 @@ $result = mysqli_query($con, $sql);
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Courses</title>
+    <title>Connect Courses - Courses</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -85,8 +85,8 @@ $result = mysqli_query($con, $sql);
     <!-- Navbar Start -->
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
-            <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
+            <a href="index.php" class="navbar-brand ml-lg-3">
+                <img src="img/logo2.png" alt="Logo" style="width: 250px;">
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -176,7 +176,7 @@ if(mysqli_num_rows($result) == 0) {
                     <a class="courses-list-item position-relative d-block overflow-hidden mb-2"
                         href="detail.php?id=<?php echo $row['id'];?>">
                         <img class="img-fluid" style="height:400px;object-fit:cover"
-                            src="<?php echo $row['portrait']; ?>" alt="">
+                            src="<?php echo $row['portrait']===Null?'img/no-image.png':$row['portrait']; ?>" alt="">
                         <div class="courses-text">
                             <h4 class="text-center text-white px-3"><?php echo $row['courseName'];?></h4>
                             <div class="border-top w-100 mt-3">

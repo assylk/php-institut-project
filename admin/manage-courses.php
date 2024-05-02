@@ -67,11 +67,12 @@ if(isset($_POST['addCourse'])){
     $courseCode=$_POST['courseCode'];
     $courseName=$_POST['courseName'];
     $coursePrice= $_POST['coursePrice'];
+    $coursePin=uniqid();
     
     // Insert user details into the database
     
 
-    $sql=mysqli_query($con,"Insert into course(courseCode,courseName,price) values('$courseCode','$courseName','$coursePrice')");
+    $sql=mysqli_query($con,"Insert into course(author,coursePin,courseCode,courseName,price) values('admin','$coursePin','$courseCode','$courseName','$coursePrice')");
     if ($sql) {
         $_SESSION['message']= "New course added successfully";
     }else{
@@ -104,7 +105,7 @@ echo '<script>window.location.href=change-password.php</script>';
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Manage Courses</title>
+    <title>Connect Courses - Manage Courses</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -266,7 +267,7 @@ if(mysqli_num_rows($result) == 0) {
                                             <td><?php echo htmlentities($row['rate']);?></td>
                                             <td><?php echo htmlentities($row['creationDate']);?></td>
                                             <td>
-                                                <a href="edit-course.php?id=<?php echo $row['coursePin']?>">
+                                                <a href="edit-course.php?id=<?php echo $row['id']?>">
                                                     <button class="btn btn-primary btn-sm"><i class="fa fa-edit "></i>
                                                         Edit</button> </a>
                                                 <a href="manage-courses.php?id=<?php echo $row['id']?>&del=delete"

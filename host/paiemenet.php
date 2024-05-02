@@ -109,7 +109,7 @@ $ret=mysqli_query($con,"insert into enrolledCourses(studentID,paiementID,price,c
     </div>
     <script>
     setTimeout(function() {
-        window.location = "https://assylchouikh.rf.gd/";
+        window.location = "https://assylchouikh.rf.gd/index.php";
     }, 5000);
     </script>
 </body>

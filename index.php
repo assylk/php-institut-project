@@ -76,7 +76,7 @@ header("location:index.php");
 
 <head>
     <meta charset="utf-8">
-    <title>ISMAIK BIBLIO - Home</title>
+    <title>Connect Courses - Home</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -115,7 +115,7 @@ html {
     <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0 px-lg-5">
             <a href="index.html" class="navbar-brand ml-lg-3">
-                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>ISMAIK BIBLIO</h1>
+                <img src="img/logo2.png" alt="Logo" style="width: 250px;">
             </a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
@@ -147,7 +147,7 @@ html {
     <div class="jumbotron jumbotron-fluid position-relative overlay-bottom" style="margin-bottom: 90px;">
         <div class="container text-center my-5 py-5">
             <h1 class="text-white mt-4 mb-4">Learn From Home</h1>
-            <h1 class="text-white display-1 mb-5">Ismaik Biblio</h1>
+            <h1 class="text-white display-1 mb-5">Connect Courses</h1>
 
         </div>
     </div>
@@ -168,14 +168,15 @@ html {
                         <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">About Us</h6>
                         <h1 class="display-4">First Choice For Online Education Anywhere</h1>
                     </div>
-                    <p>Welcome to Ismaik Biblio, your premier destination for online education anywhere! At Ismaik, we
+                    <p>Welcome to Connect Courses, your premier destination for online education anywhere! At Ismaik, we
                         pride
                         ourselves on offering top-quality courses that cater to the diverse learning needs of students
                         worldwide. Whether you're looking to enhance your skills, advance your career, or explore new
                         interests, our extensive range of courses has something for everyone. With our user-friendly
                         platform, you can access world-class education from the comfort of your own home or on the go.
                         Our team of experienced instructors ensures that you receive engaging and informative lessons
-                        that empower you to succeed. Join Ismaik today and embark on your journey towards a brighter
+                        that empower you to succeed. Join Connect Courses today and embark on your journey towards a
+                        brighter
                         future!"</p>
                     <div class="row pt-3 mx-0">
                         <div class="col-3 px-0">
@@ -222,7 +223,7 @@ html {
                         </h6>
                         <h1 class="display-4">Why You Should Start Learning with Us?</h1>
                     </div>
-                    <p class="mb-4 pb-2">"Discover the advantages of learning with Ismaik Biblio! With our diverse
+                    <p class="mb-4 pb-2">"Discover the advantages of learning with Connect Courses! With our diverse
                         courses,
                         expert instructors, and flexible scheduling, we offer a superior learning experience tailored to
                         your needs. Join us today to unlock your full potential!"</p>
@@ -232,7 +233,8 @@ html {
                         </div>
                         <div class="mt-n1">
                             <h4>Skilled Instructors</h4>
-                            <p>At Ismaik, our skilled instructors ensure top-quality learning. With expertise in their
+                            <p>At Connect Courses, our skilled instructors ensure top-quality learning. With expertise
+                                in their
                                 fields, they provide engaging education for your success. Join us today and learn from
                                 the best!</p>
                         </div>
@@ -243,7 +245,8 @@ html {
                         </div>
                         <div class="mt-n1">
                             <h4>International Certificate</h4>
-                            <p>Get recognized globally with Ismaik's international certificates. Boost your career or
+                            <p>Get recognized globally with Connect Course's international certificates. Boost your
+                                career or
                                 academic credentials today!</p>
                         </div>
                     </div>
@@ -253,7 +256,8 @@ html {
                         </div>
                         <div class="mt-n1">
                             <h4>Online Classes</h4>
-                            <p class="m-0">Join Ismaik for flexible online learning. Explore diverse courses, expert
+                            <p class="m-0">Join Connect Courses for flexible online learning. Explore diverse courses,
+                                expert
                                 instructors, and achieve your goals from anywhere.</p>
                         </div>
                     </div>
@@ -321,7 +325,7 @@ while($row=mysqli_fetch_array($sql))
         <div class="row justify-content-center bg-image mx-0 mb-5">
             <div class="col-lg-6 py-5" id="login">
                 <div class="bg-white p-5 my-5">
-                    <h1 class="text-center mb-4">30% Off For New Students</h1>
+                    <h1 class="text-center mb-4">50% Off For New Students</h1>
                     <form name="admin" method="post">
                         <div class="form-row">
                             <div class="col-sm-6">
@@ -434,7 +438,8 @@ while($row=mysqli_fetch_array($sql))
                         </h6>
                         <h1 class="display-4">What Say Our Students</h1>
                     </div>
-                    <p class="m-0">Discover what our students have to say about Ismaik! Hear firsthand experiences
+                    <p class="m-0">Discover what our students have to say about Connect Courses! Hear firsthand
+                        experiences
                         and
                         testimonials from individuals who have benefited from our courses. Join our community and
                         share
@@ -499,7 +504,7 @@ while($row=mysqli_fetch_array($sql))
                             </div>
                             <div class="mt-n1">
                                 <h4>Email Us</h4>
-                                <p class="m-0">ismaik-biblio@gmail.com</p>
+                                <p class="m-0">connect-courses@gmail.com</p>
                             </div>
                         </div>
                     </div>
